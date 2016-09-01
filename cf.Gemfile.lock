@@ -1,0 +1,56 @@
+GIT
+  remote: https://github.com/cloudfoundry/machete.git
+  revision: 0a96cf194aba38b6c39a4c83ee619a63144711c8
+  tag: v0.0.48
+  specs:
+    machete (0.0.48)
+      childprocess
+      httparty
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    childprocess (0.5.9)
+      ffi (~> 1.0, >= 1.0.11)
+    coderay (1.1.1)
+    diff-lcs (1.2.5)
+    ffi (1.9.14)
+    httparty (0.14.0)
+      multi_xml (>= 0.5.2)
+    method_source (0.8.2)
+    multi_xml (0.5.5)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+    rspec-core (3.5.2)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-instafail (1.0.0)
+      rspec
+    rspec-mocks (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
+    slop (3.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  machete!
+  pry
+  rspec
+  rspec-instafail
+
+RUBY VERSION
+   ruby 2.3.1p112
+
+BUNDLED WITH
+   1.12.5
