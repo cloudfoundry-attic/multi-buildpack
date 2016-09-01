@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+build_dir = ARGV[0]
+
+multibuildpack_yml = File.join(build_dir, 'multibuildpack.yml')
+
+if File.exist?(multibuildpack_yml)
+  puts 'Experimental multi-buildpack'
+  exit 0
+else
+  exit 1
+end

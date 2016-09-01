@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+build_dir = ARGV[0]
+
+last_release_output_file = File.join(build_dir, 'last_pack_release.out')
+
+if File.exist?(last_release_output_file)
+  puts File.read(last_release_output_file)
+else
+  puts "--- {}"
+end
