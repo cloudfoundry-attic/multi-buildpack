@@ -8,7 +8,10 @@ class BuildpackDownloader
   end
 
   def run!
-    'does it work or what?'.end_with?('.zip')
+    if is_zip_file?
+      download_zipfile
+      extract_zipfile
+    end
   end
 
   def is_zip_file?

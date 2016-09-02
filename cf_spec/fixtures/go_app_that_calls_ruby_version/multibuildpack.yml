@@ -1,3 +1,3 @@
 buildpacks:
-  - https://github.com/cloudfoundry/ruby-buildpack#v1.6.23
-  - https://github.com/cloudfoundry/go-buildpack#develop
+  - https://github.com/cloudfoundry/ruby-buildpack/releases/download/v1.6.23/ruby_buildpack-cached-v1.6.23.zip
+  - https://github.com/cloudfoundry/go-buildpack/releases/download/v1.7.12/go_buildpack-cached-v1.7.12.zip

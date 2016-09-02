@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'yaml'
 require 'uri'
+require_relative 'buildpack_downloader'
 
 class MultiBuildpackStager
 
@@ -15,49 +16,24 @@ class MultiBuildpackStager
 
   def get_buildpacks
     multi_buildpack_file = File.join(build_dir, 'multibuildpack.yml')
-    buildpack_urls = YAML.load_file(multi_buildpack_file)['buildpacks']
-    download_buildpacks(buildpack_urls)
+    buildpack_uris = YAML.load_file(multi_buildpack_file)['buildpacks']
+    download_buildpacks(buildpack_uris)
   end
 
-  def download_buildpacks(buildpack_urls)
+  def download_buildpacks(buildpack_uris)
     buildpacks = []
 
     Dir.chdir(buildpack_downloads_dir) do
-      buildpack_urls.each do |buildpack_url|
+      buildpack_uris.each do |buildpack_uri|
 
-        parsed_uri = URI(buildpack_url)
-
-        if is_zip_file(parsed_uri)
-          buildpacks.push(download_zip_file(parsed_uri))
-        else
-          buildpacks.push(clone_buildpack_repo(parsed_uri))
-        end
+        downloader = BuildpackDownloader.new(buildpack_uri)
+        buildpack = downloader.run!
+        buildpacks.push(buildpack)
 
       end
     end
 
     buildpacks
-  end
-
-  def is_zip_file(uri)
-    uri.path.split('/').last.end_with?('.zip')
-  end
-
-  def download_zip_file(uri)
-    puts "-----> Downloading buildpack #{uri.to_s}..."
-
-    output_file = uri.path.split('/').last
-    unzip_directory = output_file.chomp('.zip')
-
-    curl_command = "curl -L #{uri.to_s} -o #{output_file}"
-    curl_output = `#{curl_command}`
-    puts curl_output
-
-    puts "-----> Unzipping buildpack #{output_file} to #{unzip_directory}..."
-    unzip_command = "unzip #{output_file} -d #{unzip_directory}"
-    `#{unzip_command}`
-
-    unzip_directory
   end
 
   def clone_buildpack_repo(git_url)
