@@ -14,6 +14,12 @@ class MultiBuildpackStager
 
   def buildpacks
     multi_buildpack_file = File.join(build_dir, 'multi-buildpack.yml')
+
+    unless File.exist?(multi_buildpack_file)
+      error_message = "A multi-buildpack.yml file must be provided at your app root to use this buildpack."
+      raise error_message
+    end
+
     YAML.load_file(multi_buildpack_file)['buildpacks']
   end
 
