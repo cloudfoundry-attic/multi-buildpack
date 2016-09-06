@@ -1,4 +1,5 @@
 log
+*.zip
 
 # We ignore these because our tooling assumes cf.Gemfile
 # to avoid collision with every other tool, which assumes Gemfile.

@@ -1,0 +1,11 @@
+---
+language: multi-buildpack
+dependencies: []
+url_to_dependency_map: []
+exclude_files:
+  - ".git/"
+  - ".gitignore"
+  - ".gitmodules"
+  - cf_spec/
+  - log/
+  - multi-buildpack_buildpack-*v*.zip
