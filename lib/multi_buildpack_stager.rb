@@ -23,6 +23,7 @@ class MultiBuildpackStager
     compile_command = "/tmp/lifecycle/builder"
     compile_command += " --skipDetect=true --buildpacksDir=#{buildpack_downloads_dir}"
     compile_command += " --buildpackOrder=#{buildpack} --outputDroplet=/dev/null"
+    compile_command += " --buildDir=#{build_dir} --buildArtifactsCacheDir=#{cache_dir}"
 
     compile_output = `#{compile_command}`
     puts compile_output
