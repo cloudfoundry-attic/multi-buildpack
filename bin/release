@@ -1,11 +1,18 @@
 #!/usr/bin/env ruby
 
-build_dir = ARGV[0]
+require 'yaml'
 
-last_release_output_file = File.join(build_dir, 'last_pack_release.out')
+staging_info_files = Dir['/tmp/contents*/staging_info.yml']
 
-if File.exist?(last_release_output_file)
-  puts File.read(last_release_output_file)
-else
-  puts "--- {}"
-end
+latest_staging_info_file = staging_info_files.max { |a,b| File.ctime(a) <=> File.ctime(b) }
+
+STDERR.puts "-----> Reading staging info from #{latest_staging_info_file}"
+
+staging_info_yaml = YAML.load_file(latest_staging_info_file)
+
+release_metadata = {}
+release_metadata['default_process_types'] = {
+  'web' => staging_info_yaml['start_command']
+}
+
+puts release_metadata.to_yaml
