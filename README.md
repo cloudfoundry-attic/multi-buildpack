@@ -28,7 +28,34 @@ buildpacks:
   - go_buildpack
 ```
 
-- The multi-buildpack will run the `bin/compile` and `bin/release` scripts for each specified buildpack. 
+- The multi-buildpack will run the `bin/compile` and `bin/release` scripts for each specified buildpack.
+
+### Testing
+Buildpacks use the [Machete](https://github.com/cloudfoundry/machete) framework for running integration tests.
+
+To test a buildpack, run the following command from the buildpack's directory:
+
+```
+BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-build
+```
+
+More options can be found on Machete's [Github page.](https://github.com/cloudfoundry/machete)
+
+### Contributing
+
+Find our guidelines [here](./CONTRIBUTING.md).
+
+### Help and Support
+
+Join the #buildpacks channel in our [Slack community] (http://slack.cloudfoundry.org/) if you need any further assistance.
+
+### Reporting Issues
+
+Please fill out the issue template fully if you'd like to start an issue for the buildpack.
+
+### Active Development
+
+The project backlog is on [Pivotal Tracker](https://www.pivotaltracker.com/projects/1042066)
 
 ## Disclaimer
 
