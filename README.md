@@ -1,5 +1,7 @@
 # Cloud Foundry Experimental Multi-buildpack
 
+[![CF Slack](https://www.google.com/s2/favicons?domain=www.slack.com) Join us on Slack](https://cloudfoundry.slack.com/messages/buildpacks/)
+
 This buildpack allows you to run multiple buildpacks in a single staging container.
 
 ## Usage
