@@ -65,7 +65,7 @@ describe MultiBuildpackStager do
           args.detect{|a|a.start_with? '--buildArtifactsCacheDir='}
         end
 
-        expect(cache_dirs).to match ["--buildArtifactsCacheDir=#{cache_dir}/#{ruby_md5}", "--buildArtifactsCacheDir=#{cache_dir}/#{go_md5}"]
+        expect(cache_dirs).to match_array ["--buildArtifactsCacheDir=#{cache_dir}/#{ruby_md5}", "--buildArtifactsCacheDir=#{cache_dir}/#{go_md5}"]
       end
 
       it 'removes any cache_dirs that are no longer required' do
@@ -74,7 +74,7 @@ describe MultiBuildpackStager do
         subject.run!
 
         cache_dirs = Dir.entries(cache_dir).reject { |d| %w(. ..).include? d }
-        expect(cache_dirs).to match [go_md5, ruby_md5]
+        expect(cache_dirs).to match_array [go_md5, ruby_md5]
       end
 
       it 'leaves file in cache_dirs across runs' do
