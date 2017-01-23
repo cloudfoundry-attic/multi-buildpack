@@ -1,3 +1,12 @@
+v0.1.1 Jan 23, 2017
+====================
+
+* Each buildpack has its own cache directory
+  (https://www.pivotaltracker.com/story/show/136582025)
+
+* Create ISSUE_TEMPLATE and PULL_REQUEST_TEMPLATE
+  (https://www.pivotaltracker.com/story/show/134274867)
+
 v0.1.0 Sep 15, 2016
 ====================
 
