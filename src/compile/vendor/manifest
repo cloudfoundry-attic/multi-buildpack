@@ -1,0 +1,148 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "code.cloudfoundry.org/archiver/compressor",
+			"repository": "https://github.com/cloudfoundry/archiver",
+			"vcs": "git",
+			"revision": "59f15fd17404dceccb25d8b62df1271035b707a5",
+			"branch": "master",
+			"path": "/compressor",
+			"notests": true
+		},
+		{
+			"importpath": "code.cloudfoundry.org/archiver/extractor",
+			"repository": "https://github.com/cloudfoundry/archiver",
+			"vcs": "git",
+			"revision": "59f15fd17404dceccb25d8b62df1271035b707a5",
+			"branch": "master",
+			"path": "extractor",
+			"notests": true
+		},
+		{
+			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
+			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
+			"vcs": "git",
+			"revision": "deae579c92434ae30a708b23975cc993da421670",
+			"branch": "multi",
+			"notests": true
+		},
+		{
+			"importpath": "code.cloudfoundry.org/bytefmt",
+			"repository": "https://github.com/cloudfoundry/bytefmt",
+			"vcs": "git",
+			"revision": "4ca94c81cb8f51302e44e42f9e8be9503cba8d70",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "code.cloudfoundry.org/cacheddownloader",
+			"repository": "https://github.com/cloudfoundry/cacheddownloader",
+			"vcs": "git",
+			"revision": "5a3f8dfc8e873fa411fca99561850f49b0535c1b",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "code.cloudfoundry.org/lager",
+			"repository": "https://github.com/cloudfoundry/lager",
+			"vcs": "git",
+			"revision": "e95b952e262dcdb521c8b029ba15853f59292726",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/cloudfoundry-incubator/candiedyaml",
+			"repository": "https://github.com/cloudfoundry-incubator/candiedyaml",
+			"vcs": "git",
+			"revision": "99c3df83b51532e3615f851d8c2dbb638f5313bf",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/cloudfoundry/libbuildpack",
+			"repository": "https://github.com/cloudfoundry/libbuildpack",
+			"vcs": "git",
+			"revision": "c35b8d98b647150389265228ad5ff4ba10f87e21",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/cloudfoundry/systemcerts",
+			"repository": "https://github.com/cloudfoundry/systemcerts",
+			"vcs": "git",
+			"revision": "35f8aba8d0c47b970ae9e9d7885a940d393f6702",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/mock/gomock",
+			"repository": "https://github.com/golang/mock",
+			"vcs": "git",
+			"revision": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9",
+			"branch": "master",
+			"path": "/gomock",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/mock/mockgen",
+			"repository": "https://github.com/golang/mock",
+			"vcs": "git",
+			"revision": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9",
+			"branch": "master",
+			"path": "/mockgen",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/protobuf/proto",
+			"repository": "https://github.com/golang/protobuf",
+			"vcs": "git",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"branch": "master",
+			"path": "/proto",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/protobuf/ptypes/any",
+			"repository": "https://github.com/golang/protobuf",
+			"vcs": "git",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"branch": "master",
+			"path": "ptypes/any",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/onsi/ginkgo",
+			"repository": "https://github.com/onsi/ginkgo",
+			"vcs": "git",
+			"revision": "bb93381d543b0e5725244abe752214a110791d01",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/onsi/gomega",
+			"repository": "https://github.com/onsi/gomega",
+			"vcs": "git",
+			"revision": "c463cd2a8578290d4be7a25cba69de81cf35785e",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "075e574b89e4c2d22f2286a7e2b919519c6f3547",
+			"branch": "master",
+			"path": "/unix",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"vcs": "git",
+			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
+			"branch": "v2",
+			"notests": true
+		}
+	]
+}

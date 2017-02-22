@@ -1,12 +1,10 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# bin/detect <build-dir>
 
-build_dir = ARGV[0]
+BUILDPACK=$(dirname $(dirname $0))
 
-multi_buildpack_yml = File.join(build_dir, 'multi-buildpack.yml')
-
-if File.exist?(multi_buildpack_yml)
-  puts 'Experimental multi-buildpack'
-  exit 0
+if [ -f $1/multi-buildpack.yml ]; then
+  echo "Experimental multi-buildpack `cat $BUILDPACK/VERSION`" && exit 0
 else
   exit 1
-end
+fi
