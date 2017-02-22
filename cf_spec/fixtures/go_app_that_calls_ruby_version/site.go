@@ -18,10 +18,10 @@ func main() {
 }
 
 func hello(res http.ResponseWriter, req *http.Request) {
-	rubyVersion, err := exec.Command("ruby", "-v").Output()
+	bundlerVersion, err := exec.Command("bundle", "--version").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Fprintf(res, "The ruby version is: %s\n", rubyVersion)
+	fmt.Fprintf(res, "The bundler version is: %s\n", bundlerVersion)
 }

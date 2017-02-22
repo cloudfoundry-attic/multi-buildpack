@@ -15,6 +15,6 @@ describe 'A go app that calls ruby version' do
     expect(app).to be_running
 
     browser.visit_path('/')
-    expect(browser).to have_body(/The ruby version is: ruby 2\.3\.1/)
+    expect(browser).to have_body(/The bundler version is: Bundler version 1\.12\.5/)
   end
 end

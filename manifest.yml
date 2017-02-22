@@ -9,3 +9,5 @@ exclude_files:
   - cf_spec/
   - log/
   - multi-buildpack_buildpack-*v*.zip
+
+pre_package: scripts/build.sh
