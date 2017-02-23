@@ -95,7 +95,7 @@ func (c *MultiCompiler) RunBuildpacks() error {
 			return err
 		}
 
-		err = c.Runner.Run(&config)
+		_, err = c.Runner.Run(&config)
 		if err != nil {
 			c.Compiler.Log.Error(err.Error())
 

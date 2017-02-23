@@ -29,10 +29,11 @@ func (_m *MockRunner) EXPECT() *_MockRunnerRecorder {
 	return _m.recorder
 }
 
-func (_m *MockRunner) Run(config *buildpackapplifecycle.LifecycleBuilderConfig) error {
+func (_m *MockRunner) Run(config *buildpackapplifecycle.LifecycleBuilderConfig) (string, error) {
 	ret := _m.ctrl.Call(_m, "Run", config)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 func (_mr *_MockRunnerRecorder) Run(arg0 interface{}) *gomock.Call {
