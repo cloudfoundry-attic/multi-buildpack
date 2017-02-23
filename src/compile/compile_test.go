@@ -143,19 +143,21 @@ var _ = Describe("Compile", func() {
 	})
 
 	Describe("RunBuildpacks", func() {
+		var stagingInfo string
+
 		Context("a list of buildpacks is provided", func() {
 			BeforeEach(func() {
 				buildpacks = []string{"third_buildpack", "fourth_buildpack"}
 			})
 
-			It("runs all the buildpacks", func() {
+			JustBeforeEach(func() {
 				call0 := mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
 					Expect(config.BuildDir()).To(Equal(buildDir))
 					Expect(config.BuildpackOrder()).To(ConsistOf(buildpacks[0]))
 					Expect(config.OutputDroplet()).To(Equal("/dev/null"))
 					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
 					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[0])))
-				})
+				}).Return("third/staging-info.yml", nil)
 
 				mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
 					Expect(config.BuildDir()).To(Equal(buildDir))
@@ -164,14 +166,21 @@ var _ = Describe("Compile", func() {
 					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
 					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[1])))
 
-				}).After(call0)
+				}).Return("fourth/staging-info.yml", nil).After(call0)
+			})
 
-				err = compiler.RunBuildpacks()
+			It("runs all the buildpacks", func() {
+				_, err = compiler.RunBuildpacks()
 				Expect(err).To(BeNil())
 
 				Expect(buffer.String()).To(ContainSubstring("-----> Running builder for buildpack third_buildpack"))
 				Expect(buffer.String()).To(ContainSubstring("-----> Running builder for buildpack fourth_buildpack"))
 
+			})
+			It("returns the location of the last staging-info.yml", func() {
+				stagingInfo, err = compiler.RunBuildpacks()
+				Expect(err).To(BeNil())
+				Expect(stagingInfo).To(Equal("fourth/staging-info.yml"))
 			})
 		})
 
@@ -179,9 +188,10 @@ var _ = Describe("Compile", func() {
 			It("returns without calling runner.Run", func() {
 				mockRunner.EXPECT().Run(gomock.Any()).Times(0)
 
-				err = compiler.RunBuildpacks()
+				stagingInfo, err = compiler.RunBuildpacks()
 				Expect(err).To(BeNil())
 
+				Expect(stagingInfo).To(Equal(""))
 				Expect(buffer.String()).To(Equal(""))
 			})
 		})

@@ -72,7 +72,7 @@ func (c *MultiCompiler) Compile() error {
 		c.Compiler.Log.Warning("Unable to clean unused cache directories: ", err.Error())
 	}
 
-	err = c.RunBuildpacks()
+	_, err = c.RunBuildpacks()
 	if err != nil {
 		c.Compiler.Log.Error("Unable to run all buildpacks: ", err.Error())
 		return err
@@ -86,16 +86,18 @@ func (c *MultiCompiler) Compile() error {
 	return nil
 }
 
-func (c *MultiCompiler) RunBuildpacks() error {
+func (c *MultiCompiler) RunBuildpacks() (string, error) {
+	var stagingInfoFile string
+
 	for _, buildpack := range c.Buildpacks {
 		c.Compiler.Log.BeginStep("Running builder for buildpack " + buildpack + "...")
 
 		config, err := c.newLifecycleBuilderConfig(c.DownloadsDir, buildpack, c.Compiler.BuildDir)
 		if err := config.Validate(); err != nil {
-			return err
+			return "", err
 		}
 
-		_, err = c.Runner.Run(&config)
+		stagingInfoFile, err = c.Runner.Run(&config)
 		if err != nil {
 			c.Compiler.Log.Error(err.Error())
 
@@ -104,7 +106,7 @@ func (c *MultiCompiler) RunBuildpacks() error {
 		}
 	}
 
-	return nil
+	return stagingInfoFile, nil
 }
 
 func (c *MultiCompiler) newLifecycleBuilderConfig(downloadsDir, buildpack, buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
