@@ -69,19 +69,24 @@ func NewMultiCompiler(compiler *libbuildpack.Compiler, buildpacks []string) (*Mu
 func (c *MultiCompiler) Compile() error {
 	err := c.RemoveUnusedCache()
 	if err != nil {
-		c.Compiler.Log.Warning("Unable to clean unused cache directories: ", err.Error())
+		c.Compiler.Log.Warning("Unable to clean unused cache directories: %s", err.Error())
 	}
 
-	_, err = c.RunBuildpacks()
+	stagingInfoFile, err := c.RunBuildpacks()
 	if err != nil {
-		c.Compiler.Log.Error("Unable to run all buildpacks: ", err.Error())
+		c.Compiler.Log.Error("Unable to run all buildpacks: %s", err.Error())
 		return err
 	}
 
-	c.Compiler.Log.BeginStep("Removing buildpack downloads directory " + c.DownloadsDir + "...")
+	err = WriteStartCommand(stagingInfoFile, "/tmp/multi-buildpack-release.yml")
+	if err != nil {
+		c.Compiler.Log.Error("Unable to write start command: ")
+	}
+
+	c.Compiler.Log.BeginStep("Removing buildpack downloads directory %s", c.DownloadsDir)
 	err = os.RemoveAll(c.DownloadsDir)
 	if err != nil {
-		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: ", err.Error())
+		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
 	}
 	return nil
 }
@@ -90,7 +95,7 @@ func (c *MultiCompiler) RunBuildpacks() (string, error) {
 	var stagingInfoFile string
 
 	for _, buildpack := range c.Buildpacks {
-		c.Compiler.Log.BeginStep("Running builder for buildpack " + buildpack + "...")
+		c.Compiler.Log.BeginStep("Running builder for buildpack %s", buildpack)
 
 		config, err := c.newLifecycleBuilderConfig(c.DownloadsDir, buildpack, c.Compiler.BuildDir)
 		if err := config.Validate(); err != nil {

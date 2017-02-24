@@ -157,7 +157,7 @@ var _ = Describe("Compile", func() {
 					Expect(config.OutputDroplet()).To(Equal("/dev/null"))
 					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
 					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[0])))
-				}).Return("third/staging-info.yml", nil)
+				}).Return("third/staging_info.yml", nil)
 
 				mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
 					Expect(config.BuildDir()).To(Equal(buildDir))
@@ -166,7 +166,7 @@ var _ = Describe("Compile", func() {
 					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
 					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[1])))
 
-				}).Return("fourth/staging-info.yml", nil).After(call0)
+				}).Return("fourth/staging_info.yml", nil).After(call0)
 			})
 
 			It("runs all the buildpacks", func() {
@@ -177,10 +177,10 @@ var _ = Describe("Compile", func() {
 				Expect(buffer.String()).To(ContainSubstring("-----> Running builder for buildpack fourth_buildpack"))
 
 			})
-			It("returns the location of the last staging-info.yml", func() {
+			It("returns the location of the last staging_info.yml", func() {
 				stagingInfo, err = compiler.RunBuildpacks()
 				Expect(err).To(BeNil())
-				Expect(stagingInfo).To(Equal("fourth/staging-info.yml"))
+				Expect(stagingInfo).To(Equal("fourth/staging_info.yml"))
 			})
 		})
 
