@@ -1,9 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
-
 	"code.cloudfoundry.org/buildpackapplifecycle/buildpackrunner"
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -11,12 +8,7 @@ import (
 func WriteStartCommand(stagingInfoFile string, outputFile string) error {
 	var stagingInfo buildpackrunner.DeaStagingInfo
 
-	stagingData, err := ioutil.ReadFile(stagingInfoFile)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(stagingData, &stagingInfo)
+	err := libbuildpack.NewJSON().Load(stagingInfoFile, &stagingInfo)
 	if err != nil {
 		return err
 	}
