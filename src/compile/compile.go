@@ -72,7 +72,13 @@ func (c *MultiCompiler) Compile() error {
 		c.Compiler.Log.Warning("Unable to clean unused cache directories: %s", err.Error())
 	}
 
-	stagingInfoFile, err := c.RunBuildpacks()
+	newBuildDir, err := c.MoveBuildDir()
+	if err != nil {
+		c.Compiler.Log.Error("Unable to move app directory: %s", err.Error())
+		return err
+	}
+
+	stagingInfoFile, err := c.RunBuildpacks(newBuildDir)
 	if err != nil {
 		c.Compiler.Log.Error("Unable to run all buildpacks: %s", err.Error())
 		return err
@@ -80,24 +86,84 @@ func (c *MultiCompiler) Compile() error {
 
 	err = WriteStartCommand(stagingInfoFile, "/tmp/multi-buildpack-release.yml")
 	if err != nil {
-		c.Compiler.Log.Error("Unable to write start command: ")
+		c.Compiler.Log.Error("Unable to write start command: %s", err.Error())
+		return err
 	}
 
-	c.Compiler.Log.BeginStep("Removing buildpack downloads directory %s", c.DownloadsDir)
-	err = os.RemoveAll(c.DownloadsDir)
+	err = c.CleanupStagingArea(newBuildDir)
 	if err != nil {
-		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
+		c.Compiler.Log.Warning("Unable to clean staging container: %s", err.Error())
+		return err
 	}
+
 	return nil
 }
 
-func (c *MultiCompiler) RunBuildpacks() (string, error) {
+// RemoveUnusedCache removes no longer required cache directories
+func (c *MultiCompiler) RemoveUnusedCache() error {
+	dirs, err := ioutil.ReadDir(c.Compiler.CacheDir)
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range dirs {
+		if c.dirUnused(dir) {
+			err = os.RemoveAll(filepath.Join(c.Compiler.CacheDir, dir.Name()))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (c *MultiCompiler) dirUnused(dir os.FileInfo) bool {
+	var neededCacheDirs []string
+
+	for _, bp := range c.Buildpacks {
+		neededCacheDirs = append(neededCacheDirs, c.CacheDir(bp))
+	}
+
+	for _, i := range neededCacheDirs {
+		if i == filepath.Join(c.Compiler.CacheDir, dir.Name()) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c *MultiCompiler) MoveBuildDir() (string, error) {
+	tempDir, err := ioutil.TempDir("", "")
+	if err != nil {
+		return "", err
+	}
+
+	newDir := filepath.Join(tempDir, "app")
+
+	c.Compiler.Log.BeginStep("Staging app in %s", newDir)
+	err = os.Rename(c.Compiler.BuildDir, newDir)
+	if err != nil {
+		return "", err
+	}
+
+	err = os.Symlink(newDir, c.Compiler.BuildDir)
+	if err != nil {
+		fmt.Println(err.Error())
+		return "", err
+	}
+
+	return newDir, nil
+}
+
+func (c *MultiCompiler) RunBuildpacks(newBuildDir string) (string, error) {
 	var stagingInfoFile string
 
 	for _, buildpack := range c.Buildpacks {
 		c.Compiler.Log.BeginStep("Running builder for buildpack %s", buildpack)
 
-		config, err := c.newLifecycleBuilderConfig(c.DownloadsDir, buildpack, c.Compiler.BuildDir)
+		config, err := c.newLifecycleBuilderConfig(c.DownloadsDir, buildpack, newBuildDir)
 		if err := config.Validate(); err != nil {
 			return "", err
 		}
@@ -140,37 +206,16 @@ func (c *MultiCompiler) CacheDir(buildpack string) string {
 	return filepath.Join(c.Compiler.CacheDir, string(md5sum[:]))
 }
 
-// RemoveUnusedCache removes no longer required cache directories
-func (c *MultiCompiler) RemoveUnusedCache() error {
-	dirs, err := ioutil.ReadDir(c.Compiler.CacheDir)
+func (c *MultiCompiler) CleanupStagingArea(newBuildDir string) error {
+	err := os.RemoveAll(c.DownloadsDir)
+	if err != nil {
+		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
+	}
+
+	err = os.Remove(c.Compiler.BuildDir)
 	if err != nil {
 		return err
 	}
 
-	for _, dir := range dirs {
-		if c.dirUnused(dir) {
-			err = os.RemoveAll(filepath.Join(c.Compiler.CacheDir, dir.Name()))
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (c *MultiCompiler) dirUnused(dir os.FileInfo) bool {
-	var neededCacheDirs []string
-
-	for _, bp := range c.Buildpacks {
-		neededCacheDirs = append(neededCacheDirs, c.CacheDir(bp))
-	}
-
-	for _, i := range neededCacheDirs {
-		if i == filepath.Join(c.Compiler.CacheDir, dir.Name()) {
-			return false
-		}
-	}
-
-	return true
+	return os.Rename(newBuildDir, c.Compiler.BuildDir)
 }
