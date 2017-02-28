@@ -8,7 +8,7 @@ import (
 func WriteStartCommand(stagingInfoFile string, outputFile string) error {
 	var stagingInfo buildpackrunner.DeaStagingInfo
 
-	err := libbuildpack.NewJSON().Load(stagingInfoFile, &stagingInfo)
+	err := libbuildpack.NewYAML().Load(stagingInfoFile, &stagingInfo)
 	if err != nil {
 		return err
 	}
