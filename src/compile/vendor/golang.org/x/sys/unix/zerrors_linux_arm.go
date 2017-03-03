@@ -148,6 +148,21 @@ const (
 	B75                              = 0x2
 	B921600                          = 0x1007
 	B9600                            = 0xd
+	BLKBSZGET                        = 0x80081270
+	BLKBSZSET                        = 0x40081271
+	BLKFLSBUF                        = 0x1261
+	BLKFRAGET                        = 0x1265
+	BLKFRASET                        = 0x1264
+	BLKGETSIZE                       = 0x1260
+	BLKGETSIZE64                     = 0x80081272
+	BLKRAGET                         = 0x1263
+	BLKRASET                         = 0x1262
+	BLKROGET                         = 0x125e
+	BLKROSET                         = 0x125d
+	BLKRRPART                        = 0x125f
+	BLKSECTGET                       = 0x1267
+	BLKSECTSET                       = 0x1266
+	BLKSSZGET                        = 0x1268
 	BOTHER                           = 0x1000
 	BPF_A                            = 0x10
 	BPF_ABS                          = 0x20
@@ -422,6 +437,8 @@ const (
 	F_ULOCK                          = 0x0
 	F_UNLCK                          = 0x2
 	F_WRLCK                          = 0x1
+	GRND_NONBLOCK                    = 0x1
+	GRND_RANDOM                      = 0x2
 	HUPCL                            = 0x400
 	IBSHIFT                          = 0x10
 	ICANON                           = 0x2
@@ -739,6 +756,7 @@ const (
 	NETLINK_AUDIT                    = 0x9
 	NETLINK_BROADCAST_ERROR          = 0x4
 	NETLINK_CONNECTOR                = 0xb
+	NETLINK_CRYPTO                   = 0x15
 	NETLINK_DNRTMSG                  = 0xe
 	NETLINK_DROP_MEMBERSHIP          = 0x2
 	NETLINK_ECRYPTFS                 = 0x13
@@ -755,8 +773,11 @@ const (
 	NETLINK_PKTINFO                  = 0x3
 	NETLINK_RDMA                     = 0x14
 	NETLINK_ROUTE                    = 0x0
+	NETLINK_RX_RING                  = 0x6
 	NETLINK_SCSITRANSPORT            = 0x12
 	NETLINK_SELINUX                  = 0x7
+	NETLINK_SOCK_DIAG                = 0x4
+	NETLINK_TX_RING                  = 0x7
 	NETLINK_UNUSED                   = 0x1
 	NETLINK_USERSOCK                 = 0x2
 	NETLINK_XFRM                     = 0x6
@@ -779,6 +800,7 @@ const (
 	NLM_F_ATOMIC                     = 0x400
 	NLM_F_CREATE                     = 0x400
 	NLM_F_DUMP                       = 0x300
+	NLM_F_DUMP_FILTERED              = 0x20
 	NLM_F_ECHO                       = 0x8
 	NLM_F_EXCL                       = 0x200
 	NLM_F_MATCH                      = 0x200
@@ -1184,6 +1206,7 @@ const (
 	SOL_IP                           = 0x0
 	SOL_IPV6                         = 0x29
 	SOL_IRDA                         = 0x10a
+	SOL_NETLINK                      = 0x10e
 	SOL_PACKET                       = 0x107
 	SOL_RAW                          = 0xff
 	SOL_SOCKET                       = 0x1

@@ -84,65 +84,6 @@ var _ = Describe("Compile", func() {
 
 	})
 
-	Describe("RemoveUnusedCache", func() {
-		var (
-			existingDirs       []string
-			buildpackCacheDirs []string
-		)
-
-		BeforeEach(func() {
-			buildpacks = []string{"first_buildpack", "second_buildpack"}
-		})
-
-		JustBeforeEach(func() {
-			for _, bp := range compiler.Buildpacks {
-				buildpackCacheDirs = append(buildpackCacheDirs, compiler.CacheDir(bp))
-				err = os.MkdirAll(compiler.CacheDir(bp), 0755)
-				Expect(err).To(BeNil())
-			}
-		})
-
-		AfterEach(func() {
-			existingDirs = []string{}
-			buildpackCacheDirs = []string{}
-		})
-
-		Context("there are no unused cache directories", func() {
-			It("does not remove anything", func() {
-				compiler.RemoveUnusedCache()
-
-				dirs, err := ioutil.ReadDir(cacheDir)
-				Expect(err).To(BeNil())
-
-				for _, dir := range dirs {
-					existingDirs = append(existingDirs, filepath.Join(cacheDir, dir.Name()))
-				}
-
-				Expect(existingDirs).To(ConsistOf(buildpackCacheDirs))
-			})
-		})
-
-		Context("there are unused cache directories", func() {
-			BeforeEach(func() {
-				err = os.MkdirAll(filepath.Join(cacheDir, "an_unused_cache_dir"), 0755)
-				Expect(err).To(BeNil())
-			})
-
-			It("removes the unused directory", func() {
-				compiler.RemoveUnusedCache()
-
-				dirs, err := ioutil.ReadDir(cacheDir)
-				Expect(err).To(BeNil())
-
-				for _, dir := range dirs {
-					existingDirs = append(existingDirs, filepath.Join(cacheDir, dir.Name()))
-				}
-
-				Expect(existingDirs).To(ConsistOf(buildpackCacheDirs))
-			})
-		})
-	})
-
 	Describe("RunBuildpacks", func() {
 		var (
 			stagingInfo string
@@ -158,32 +99,15 @@ var _ = Describe("Compile", func() {
 			})
 
 			JustBeforeEach(func() {
-				call0 := mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
-					Expect(config.BuildDir()).To(Equal(newBuildDir))
-					Expect(config.BuildpackOrder()).To(ConsistOf(buildpacks[0]))
-					Expect(config.OutputDroplet()).To(Equal("/dev/null"))
-					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
-					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[0])))
-				}).Return("third/staging_info.yml", nil)
-
 				mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
 					Expect(config.BuildDir()).To(Equal(newBuildDir))
-					Expect(config.BuildpackOrder()).To(ConsistOf(buildpacks[1]))
+					Expect(config.BuildpackOrder()).To(Equal(buildpacks))
 					Expect(config.OutputDroplet()).To(Equal("/dev/null"))
 					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
-					Expect(config.BuildArtifactsCacheDir()).To(Equal(compiler.CacheDir(buildpacks[1])))
-
-				}).Return("fourth/staging_info.yml", nil).After(call0)
+					Expect(config.BuildArtifactsCacheDir()).To(Equal(cacheDir))
+				}).Return("fourth/staging_info.yml", nil)
 			})
 
-			It("runs all the buildpacks", func() {
-				_, err = compiler.RunBuildpacks(newBuildDir)
-				Expect(err).To(BeNil())
-
-				Expect(buffer.String()).To(ContainSubstring("-----> Running builder for buildpack third_buildpack"))
-				Expect(buffer.String()).To(ContainSubstring("-----> Running builder for buildpack fourth_buildpack"))
-
-			})
 			It("returns the location of the last staging_info.yml", func() {
 				stagingInfo, err = compiler.RunBuildpacks(newBuildDir)
 				Expect(err).To(BeNil())
@@ -247,16 +171,34 @@ var _ = Describe("Compile", func() {
 	})
 
 	Describe("CleanupStagingArea", func() {
-		var newBuildDir string
+		var (
+			newBuildRoot string
+			newBuildDir  string
+			newDepsDir   string
+		)
 
 		BeforeEach(func() {
-			newBuildDir, err = ioutil.TempDir("", "return")
+			newBuildRoot, err = ioutil.TempDir("", "return")
+			Expect(err).To(BeNil())
+
+			newBuildDir = filepath.Join(newBuildRoot, "app")
+			err = os.MkdirAll(newBuildDir, 0755)
 			Expect(err).To(BeNil())
 
 			err = ioutil.WriteFile(filepath.Join(newBuildDir, "file1.txt"), []byte("test"), 0644)
 			Expect(err).To(BeNil())
 
 			err = ioutil.WriteFile(filepath.Join(newBuildDir, "file2.txt"), []byte("test2"), 0644)
+			Expect(err).To(BeNil())
+
+			newDepsDir = filepath.Join(newBuildRoot, "deps")
+			err = os.MkdirAll(newDepsDir, 0755)
+			Expect(err).To(BeNil())
+
+			err = ioutil.WriteFile(filepath.Join(newDepsDir, "dep1.txt"), []byte("x1"), 0644)
+			Expect(err).To(BeNil())
+
+			err = ioutil.WriteFile(filepath.Join(newDepsDir, "dep2.txt"), []byte("x2"), 0644)
 			Expect(err).To(BeNil())
 
 			Expect(downloadsDir).To(BeADirectory())
@@ -281,6 +223,17 @@ var _ = Describe("Compile", func() {
 				Expect(err).To(BeNil())
 
 				Expect(downloadsDir).NotTo(BeADirectory())
+			})
+
+			It("it moves <buildDir>/../deps to <buildDir>/.deps", func() {
+				depsDir := filepath.Join(buildDir, ".deps")
+
+				err := compiler.CleanupStagingArea(newBuildDir)
+				Expect(err).To(BeNil())
+
+				Expect(depsDir).To(BeADirectory())
+				Expect(ioutil.ReadFile(filepath.Join(depsDir, "dep1.txt"))).To(Equal([]byte("x1")))
+				Expect(ioutil.ReadFile(filepath.Join(depsDir, "dep2.txt"))).To(Equal([]byte("x2")))
 			})
 		})
 	})

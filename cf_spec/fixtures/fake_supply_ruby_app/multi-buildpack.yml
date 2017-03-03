@@ -1,0 +1,3 @@
+buildpacks:
+  - https://buildpacks.cloudfoundry.org/fixtures/fake_buildpack.zip
+  - https://github.com/cloudfoundry/ruby-buildpack

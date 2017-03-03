@@ -5,7 +5,7 @@
 			"importpath": "code.cloudfoundry.org/archiver/compressor",
 			"repository": "https://github.com/cloudfoundry/archiver",
 			"vcs": "git",
-			"revision": "59f15fd17404dceccb25d8b62df1271035b707a5",
+			"revision": "7291196139d7ff307249aef1a9febb710e413047",
 			"branch": "master",
 			"path": "/compressor",
 			"notests": true
@@ -14,7 +14,7 @@
 			"importpath": "code.cloudfoundry.org/archiver/extractor",
 			"repository": "https://github.com/cloudfoundry/archiver",
 			"vcs": "git",
-			"revision": "59f15fd17404dceccb25d8b62df1271035b707a5",
+			"revision": "7291196139d7ff307249aef1a9febb710e413047",
 			"branch": "master",
 			"path": "extractor",
 			"notests": true
@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "5ecc1ac3effa43b8bd713070c9a81342243e6571",
+			"revision": "355364a81a6d9c8d7cc2de937ad14eccc4c741d1",
 			"branch": "multi",
 			"notests": true
 		},
@@ -31,7 +31,7 @@
 			"importpath": "code.cloudfoundry.org/bytefmt",
 			"repository": "https://github.com/cloudfoundry/bytefmt",
 			"vcs": "git",
-			"revision": "4ca94c81cb8f51302e44e42f9e8be9503cba8d70",
+			"revision": "a75017a21993c80187c7fa4f3c1ec22ddd6a8cd5",
 			"branch": "master",
 			"notests": true
 		},
@@ -39,7 +39,7 @@
 			"importpath": "code.cloudfoundry.org/cacheddownloader",
 			"repository": "https://github.com/cloudfoundry/cacheddownloader",
 			"vcs": "git",
-			"revision": "5a3f8dfc8e873fa411fca99561850f49b0535c1b",
+			"revision": "6a8779a4c885bc7c6d8d9ba8d7517f3dfd694907",
 			"branch": "master",
 			"notests": true
 		},
@@ -47,15 +47,7 @@
 			"importpath": "code.cloudfoundry.org/lager",
 			"repository": "https://github.com/cloudfoundry/lager",
 			"vcs": "git",
-			"revision": "e95b952e262dcdb521c8b029ba15853f59292726",
-			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/cloudfoundry-incubator/candiedyaml",
-			"repository": "https://github.com/cloudfoundry-incubator/candiedyaml",
-			"vcs": "git",
-			"revision": "99c3df83b51532e3615f851d8c2dbb638f5313bf",
+			"revision": "de8e9c6c6e474e5e3668aea1a9817bdb4ceeceb0",
 			"branch": "master",
 			"notests": true
 		},
@@ -63,7 +55,7 @@
 			"importpath": "github.com/cloudfoundry/libbuildpack",
 			"repository": "https://github.com/cloudfoundry/libbuildpack",
 			"vcs": "git",
-			"revision": "78176a01c932c2e6f6c11b0edcc2defe945d1511",
+			"revision": "9021cc37fcd096c98b4ef7c72648897a33030324",
 			"branch": "master",
 			"notests": true
 		},
@@ -71,33 +63,23 @@
 			"importpath": "github.com/cloudfoundry/systemcerts",
 			"repository": "https://github.com/cloudfoundry/systemcerts",
 			"vcs": "git",
-			"revision": "35f8aba8d0c47b970ae9e9d7885a940d393f6702",
+			"revision": "eb61346e02b83199075a57e2da5e131d9b7353a2",
 			"branch": "master",
 			"notests": true
 		},
 		{
-			"importpath": "github.com/golang/mock/gomock",
+			"importpath": "github.com/golang/mock",
 			"repository": "https://github.com/golang/mock",
 			"vcs": "git",
 			"revision": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9",
 			"branch": "master",
-			"path": "/gomock",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/golang/mock/mockgen",
-			"repository": "https://github.com/golang/mock",
-			"vcs": "git",
-			"revision": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9",
-			"branch": "master",
-			"path": "/mockgen",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"revision": "69b215d01a5606c843240eab4937eab3acee6530",
 			"branch": "master",
 			"path": "/proto",
 			"notests": true
@@ -106,9 +88,17 @@
 			"importpath": "github.com/golang/protobuf/ptypes/any",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"revision": "69b215d01a5606c843240eab4937eab3acee6530",
 			"branch": "master",
 			"path": "ptypes/any",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/google/uuid",
+			"repository": "https://github.com/google/uuid",
+			"vcs": "git",
+			"revision": "064e2069ce9c359c118179501254f67d7d37ba24",
+			"branch": "master",
 			"notests": true
 		},
 		{
@@ -131,7 +121,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "075e574b89e4c2d22f2286a7e2b919519c6f3547",
+			"revision": "e48874b42435b4347fc52bdee0424a52abc974d7",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

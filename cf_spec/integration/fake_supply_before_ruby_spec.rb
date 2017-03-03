@@ -1,20 +1,21 @@
 $: << 'cf_spec'
 require 'spec_helper'
 
-describe 'A go app that calls ruby version' do
+describe 'running fake-buildpack supply before the ruby buildpack' do
   let(:buildpack) { ENV.fetch('SHARED_HOST')=='true' ? 'multi_buildpack' : 'multi-test-buildpack' }
   let(:app) { Machete.deploy_app(app_name, buildpack: buildpack) }
-  let(:app_name) { 'go_app_that_calls_ruby_version' }
+  let(:app_name) { 'fake_supply_ruby_app' }
   let(:browser) { Machete::Browser.new(app) }
 
   subject(:app) { Machete.deploy_app(app_name) }
 
   after { Machete::CF::DeleteApp.new.execute(app) }
 
-  it 'reports the ruby version specified in the Gemfile' do
+  it 'finds the supplied "dependency" in the runtime container' do
     expect(app).to be_running
+    expect(app).to have_logged "SUPPLYING"
 
     browser.visit_path('/')
-    expect(browser).to have_body(/The bundler version is: Bundler version 1\.12\.5/)
+    expect(browser).to have_body('always-detects-buildpack')
   end
 end

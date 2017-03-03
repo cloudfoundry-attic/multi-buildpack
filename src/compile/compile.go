@@ -1,11 +1,11 @@
 package main
 
 import (
-	"crypto/md5"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"code.cloudfoundry.org/buildpackapplifecycle"
 	"code.cloudfoundry.org/buildpackapplifecycle/buildpackrunner"
@@ -67,11 +67,6 @@ func NewMultiCompiler(compiler *libbuildpack.Compiler, buildpacks []string) (*Mu
 
 // Compile this buildpack
 func (c *MultiCompiler) Compile() error {
-	err := c.RemoveUnusedCache()
-	if err != nil {
-		c.Compiler.Log.Warning("Unable to clean unused cache directories: %s", err.Error())
-	}
-
 	newBuildDir, err := c.MoveBuildDir()
 	if err != nil {
 		c.Compiler.Log.Error("Unable to move app directory: %s", err.Error())
@@ -90,6 +85,12 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
+	err = libbuildpack.WriteProfileD(newBuildDir, "00-multi.sh", "mv .deps ../deps")
+	if err != nil {
+		c.Compiler.Log.Warning("Unable create .profile.d/00-multi.sh script: %s", err.Error())
+		return err
+	}
+
 	err = c.CleanupStagingArea(newBuildDir)
 	if err != nil {
 		c.Compiler.Log.Warning("Unable to clean staging container: %s", err.Error())
@@ -97,41 +98,6 @@ func (c *MultiCompiler) Compile() error {
 	}
 
 	return nil
-}
-
-// RemoveUnusedCache removes no longer required cache directories
-func (c *MultiCompiler) RemoveUnusedCache() error {
-	dirs, err := ioutil.ReadDir(c.Compiler.CacheDir)
-	if err != nil {
-		return err
-	}
-
-	for _, dir := range dirs {
-		if c.dirUnused(dir) {
-			err = os.RemoveAll(filepath.Join(c.Compiler.CacheDir, dir.Name()))
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (c *MultiCompiler) dirUnused(dir os.FileInfo) bool {
-	var neededCacheDirs []string
-
-	for _, bp := range c.Buildpacks {
-		neededCacheDirs = append(neededCacheDirs, c.CacheDir(bp))
-	}
-
-	for _, i := range neededCacheDirs {
-		if i == filepath.Join(c.Compiler.CacheDir, dir.Name()) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func (c *MultiCompiler) MoveBuildDir() (string, error) {
@@ -157,35 +123,33 @@ func (c *MultiCompiler) MoveBuildDir() (string, error) {
 	return newDir, nil
 }
 
+// RunBuildpacks calls the builder
 func (c *MultiCompiler) RunBuildpacks(newBuildDir string) (string, error) {
-	var stagingInfoFile string
-
-	for _, buildpack := range c.Buildpacks {
-		c.Compiler.Log.BeginStep("Running builder for buildpack %s", buildpack)
-
-		config, err := c.newLifecycleBuilderConfig(c.DownloadsDir, buildpack, newBuildDir)
-		if err := config.Validate(); err != nil {
-			return "", err
-		}
-
-		stagingInfoFile, err = c.Runner.Run(&config)
-		if err != nil {
-			c.Compiler.Log.Error(err.Error())
-
-			// FIXME Should probably return here
-			// return err
-		}
+	if len(c.Buildpacks) == 0 {
+		return "", nil
 	}
 
-	return stagingInfoFile, nil
+	c.Compiler.Log.BeginStep("Running buildpacks:")
+	c.Compiler.Log.Info(strings.Join(c.Buildpacks, "\n"))
+
+	config, err := c.newLifecycleBuilderConfig(newBuildDir)
+	if err != nil {
+		return "", err
+	}
+
+	if err := config.Validate(); err != nil {
+		return "", err
+	}
+
+	return c.Runner.Run(&config)
 }
 
-func (c *MultiCompiler) newLifecycleBuilderConfig(downloadsDir, buildpack, buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
+func (c *MultiCompiler) newLifecycleBuilderConfig(buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
 	cfg := buildpackapplifecycle.NewLifecycleBuilderConfig([]string{}, true, false)
-	if err := cfg.Set("buildpacksDir", downloadsDir); err != nil {
+	if err := cfg.Set("buildpacksDir", c.DownloadsDir); err != nil {
 		return cfg, err
 	}
-	if err := cfg.Set("buildpackOrder", buildpack); err != nil {
+	if err := cfg.Set("buildpackOrder", strings.Join(c.Buildpacks, ",")); err != nil {
 		return cfg, err
 	}
 	if err := cfg.Set("outputDroplet", "/dev/null"); err != nil {
@@ -195,21 +159,27 @@ func (c *MultiCompiler) newLifecycleBuilderConfig(downloadsDir, buildpack, build
 		return cfg, err
 	}
 
-	if err := cfg.Set("buildArtifactsCacheDir", c.CacheDir(buildpack)); err != nil {
+	if err := cfg.Set("buildArtifactsCacheDir", c.Compiler.CacheDir); err != nil {
 		return cfg, err
 	}
 	return cfg, nil
 }
 
-func (c *MultiCompiler) CacheDir(buildpack string) string {
-	md5sum := fmt.Sprintf("%x", md5.Sum([]byte(buildpack)))
-	return filepath.Join(c.Compiler.CacheDir, string(md5sum[:]))
-}
-
+// CleanupStagingArea moves prepares the staging container to be tarred by the old lifecycle
 func (c *MultiCompiler) CleanupStagingArea(newBuildDir string) error {
 	err := os.RemoveAll(c.DownloadsDir)
 	if err != nil {
 		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
+	}
+
+	oldDepsDir, err := filepath.Abs(filepath.Join(newBuildDir, "..", "deps"))
+	if err != nil {
+		return err
+	}
+
+	err = os.Rename(oldDepsDir, filepath.Join(newBuildDir, ".deps"))
+	if err != nil {
+		return err
 	}
 
 	err = os.Remove(c.Compiler.BuildDir)
