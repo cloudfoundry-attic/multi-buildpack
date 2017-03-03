@@ -2,9 +2,3 @@ log
 *.zip
 /pkg/
 
-# We ignore these because our tooling assumes cf.Gemfile
-# to avoid collision with every other tool, which assumes Gemfile.
-# If you want to use other tools, symlink to cf.Gemfile. These
-# git ignores will make it nicer.
-Gemfile
-Gemfile.lock
