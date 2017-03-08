@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "355364a81a6d9c8d7cc2de937ad14eccc4c741d1",
+			"revision": "ee7ba8eec5530d43b5301b042216d58b66c32f64",
 			"branch": "multi",
 			"notests": true
 		},
@@ -63,7 +63,7 @@
 			"importpath": "github.com/cloudfoundry/systemcerts",
 			"repository": "https://github.com/cloudfoundry/systemcerts",
 			"vcs": "git",
-			"revision": "eb61346e02b83199075a57e2da5e131d9b7353a2",
+			"revision": "990ed175f6693d41bf72df8f4b4993fb499ecb55",
 			"branch": "master",
 			"notests": true
 		},
@@ -79,7 +79,7 @@
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "69b215d01a5606c843240eab4937eab3acee6530",
+			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
 			"branch": "master",
 			"path": "/proto",
 			"notests": true
@@ -88,7 +88,7 @@
 			"importpath": "github.com/golang/protobuf/ptypes/any",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "69b215d01a5606c843240eab4937eab3acee6530",
+			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
 			"branch": "master",
 			"path": "ptypes/any",
 			"notests": true
@@ -97,7 +97,7 @@
 			"importpath": "github.com/google/uuid",
 			"repository": "https://github.com/google/uuid",
 			"vcs": "git",
-			"revision": "064e2069ce9c359c118179501254f67d7d37ba24",
+			"revision": "6a5e28554805e78ea6141142aba763936c4761c0",
 			"branch": "master",
 			"notests": true
 		},
@@ -105,7 +105,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "bb93381d543b0e5725244abe752214a110791d01",
+			"revision": "ab07225d112dc7a93c289ac5b2e12735c2c46035",
 			"branch": "master",
 			"notests": true
 		},
@@ -113,7 +113,7 @@
 			"importpath": "github.com/onsi/gomega",
 			"repository": "https://github.com/onsi/gomega",
 			"vcs": "git",
-			"revision": "c463cd2a8578290d4be7a25cba69de81cf35785e",
+			"revision": "1de7ab2df9105aa5c15c4d7e14a8a514e3cb8d4b",
 			"branch": "master",
 			"notests": true
 		},
@@ -121,7 +121,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "e48874b42435b4347fc52bdee0424a52abc974d7",
+			"revision": "99f16d856c9836c42d24e7ab64ea72916925fa97",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

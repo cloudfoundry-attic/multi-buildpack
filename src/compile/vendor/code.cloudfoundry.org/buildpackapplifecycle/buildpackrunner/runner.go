@@ -25,11 +25,7 @@ import (
 
 const DOWNLOAD_TIMEOUT = 10 * time.Minute
 
-type Runner interface {
-	Run(config *buildpackapplifecycle.LifecycleBuilderConfig) (string, error)
-}
-
-type runner struct {
+type Runner struct {
 	config *buildpackapplifecycle.LifecycleBuilderConfig
 }
 
@@ -56,13 +52,13 @@ func newDescriptiveError(err error, message string, args ...interface{}) error {
 	return descriptiveError{message: fmt.Sprintf(message, args...), err: err}
 }
 
-func New() Runner {
-	return &runner{}
+func New(config *buildpackapplifecycle.LifecycleBuilderConfig) *Runner {
+	return &Runner{
+		config: config,
+	}
 }
 
-func (runner *runner) Run(config *buildpackapplifecycle.LifecycleBuilderConfig) (string, error) {
-	runner.config = config
-
+func (runner *Runner) Run() (string, error) {
 	//set up the world
 	err := runner.makeDirectories()
 	if err != nil {
@@ -78,13 +74,16 @@ func (runner *runner) Run(config *buildpackapplifecycle.LifecycleBuilderConfig) 
 	var detectedBuildpack, detectOutput, detectedBuildpackDir string
 	var ok bool
 
-	if config.SkipDetect() {
+	if runner.config.SkipDetect() {
 		detectedBuildpackDir, ok = runner.supply()
+		if !ok {
+			return "", newDescriptiveError(nil, buildpackapplifecycle.SupplyFailMsg)
+		}
 	} else {
 		detectedBuildpack, detectedBuildpackDir, detectOutput, ok = runner.detect()
-	}
-	if !ok {
-		return "", newDescriptiveError(nil, buildpackapplifecycle.DetectFailMsg)
+		if !ok {
+			return "", newDescriptiveError(nil, buildpackapplifecycle.DetectFailMsg)
+		}
 	}
 
 	err = runner.compile(detectedBuildpackDir)
@@ -159,7 +158,7 @@ func (runner *runner) Run(config *buildpackapplifecycle.LifecycleBuilderConfig) 
 	return infoFilePath, nil
 }
 
-func (runner *runner) makeDirectories() error {
+func (runner *Runner) makeDirectories() error {
 	if err := os.MkdirAll(filepath.Dir(runner.config.OutputDroplet()), 0755); err != nil {
 		return err
 	}
@@ -185,7 +184,7 @@ func (runner *runner) makeDirectories() error {
 	return nil
 }
 
-func (runner *runner) downloadBuildpacks() error {
+func (runner *Runner) downloadBuildpacks() error {
 	// Do we have a custom buildpack?
 	for _, buildpackName := range runner.config.BuildpackOrder() {
 		buildpackURL, err := url.Parse(buildpackName)
@@ -215,7 +214,7 @@ func (runner *runner) downloadBuildpacks() error {
 	return nil
 }
 
-func (runner *runner) buildpackPath(buildpack string) (string, error) {
+func (runner *Runner) buildpackPath(buildpack string) (string, error) {
 	buildpackPath := runner.config.BuildpackPath(buildpack)
 
 	if runner.pathHasBinDirectory(buildpackPath) {
@@ -238,17 +237,17 @@ func (runner *runner) buildpackPath(buildpack string) (string, error) {
 	return "", newDescriptiveError(nil, "malformed buildpack does not contain a /bin dir: %s", buildpack)
 }
 
-func (runner *runner) pathHasBinDirectory(pathToTest string) bool {
+func (runner *Runner) pathHasBinDirectory(pathToTest string) bool {
 	_, err := os.Stat(path.Join(pathToTest, "bin"))
 	return err == nil
 }
 
-func (runner *runner) supplyCachePath(buildpack string) string {
+func (runner *Runner) supplyCachePath(buildpack string) string {
 	return filepath.Join(runner.config.BuildArtifactsCacheDir(), fmt.Sprintf("%x", md5.Sum([]byte(buildpack))))
 }
 
 // returns buildpack path, ok
-func (runner *runner) supply() (string, bool) {
+func (runner *Runner) supply() (string, bool) {
 	buildpacks := runner.config.BuildpackOrder()
 	supplyBuildpacks := buildpacks[0:(len(buildpacks) - 1)]
 	compileBuildpack := buildpacks[len(buildpacks)-1]
@@ -257,26 +256,25 @@ func (runner *runner) supply() (string, bool) {
 		buildpackPath, err := runner.buildpackPath(buildpack)
 		if err != nil {
 			printError(err.Error())
-			continue
+			return "", false
 		}
 
 		guid := uuid.Must(uuid.NewRandom()).String()
 		err = os.MkdirAll(path.Join(runner.config.DepsDir(), guid), 0755)
 		if err != nil {
 			printError(err.Error())
-			continue
+			return "", false
 		}
 
 		err = os.MkdirAll(runner.supplyCachePath(buildpack), 0755)
 		if err != nil {
 			printError(err.Error())
-			continue
+			return "", false
 		}
 
 		err = runner.run(exec.Command(path.Join(buildpackPath, "bin", "supply"), runner.config.BuildDir(), runner.supplyCachePath(buildpack), guid, runner.config.DepsDir()), os.Stdout)
 		if err != nil {
-			printError(err.Error())
-			continue
+			return "", false
 		}
 	}
 
@@ -285,7 +283,7 @@ func (runner *runner) supply() (string, bool) {
 }
 
 // returns buildpack name,  buildpack path, buildpack detect output, ok
-func (runner *runner) detect() (string, string, string, bool) {
+func (runner *Runner) detect() (string, string, string, bool) {
 	for _, buildpack := range runner.config.BuildpackOrder() {
 
 		buildpackPath, err := runner.buildpackPath(buildpack)
@@ -305,7 +303,7 @@ func (runner *runner) detect() (string, string, string, bool) {
 	return "", "", "", false
 }
 
-func (runner *runner) readProcfile() (map[string]string, error) {
+func (runner *Runner) readProcfile() (map[string]string, error) {
 	processes := map[string]string{}
 
 	procFile, err := ioutil.ReadFile(filepath.Join(runner.config.BuildDir(), "Procfile"))
@@ -327,7 +325,7 @@ func (runner *runner) readProcfile() (map[string]string, error) {
 	return processes, nil
 }
 
-func (runner *runner) compile(buildpackDir string) error {
+func (runner *Runner) compile(buildpackDir string) error {
 	compileCacheDir := runner.config.BuildArtifactsCacheDir()
 	if runner.config.IsMultiBuildpack() {
 		compileCacheDir = filepath.Join(compileCacheDir, "primary")
@@ -336,7 +334,7 @@ func (runner *runner) compile(buildpackDir string) error {
 	return runner.run(exec.Command(path.Join(buildpackDir, "bin", "compile"), runner.config.BuildDir(), compileCacheDir, "", runner.config.DepsDir()), os.Stdout)
 }
 
-func (runner *runner) release(buildpackDir string, startCommands map[string]string) (Release, error) {
+func (runner *Runner) release(buildpackDir string, startCommands map[string]string) (Release, error) {
 	output := new(bytes.Buffer)
 
 	err := runner.run(exec.Command(path.Join(buildpackDir, "bin", "release"), runner.config.BuildDir()), output)
@@ -358,7 +356,7 @@ func (runner *runner) release(buildpackDir string, startCommands map[string]stri
 	return parsedRelease, nil
 }
 
-func (runner *runner) saveInfo(infoFilePath, buildpack, detectOutput string, releaseInfo Release) error {
+func (runner *Runner) saveInfo(infoFilePath, buildpack, detectOutput string, releaseInfo Release) error {
 	deaInfoFile, err := os.Create(infoFilePath)
 	if err != nil {
 		return err
@@ -394,7 +392,7 @@ func (runner *runner) saveInfo(infoFilePath, buildpack, detectOutput string, rel
 	return nil
 }
 
-func (runner *runner) run(cmd *exec.Cmd, output io.Writer) error {
+func (runner *Runner) run(cmd *exec.Cmd, output io.Writer) error {
 	cmd.Stdout = output
 	cmd.Stderr = os.Stderr
 
