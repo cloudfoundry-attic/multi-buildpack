@@ -9,7 +9,6 @@ import (
 
 	"bytes"
 
-	"code.cloudfoundry.org/buildpackapplifecycle"
 	bp "github.com/cloudfoundry/libbuildpack"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -17,7 +16,7 @@ import (
 )
 
 //go:generate mockgen -source=vendor/github.com/cloudfoundry/libbuildpack/manifest.go --destination=mocks_manifest_test.go --package=main_test --imports=.=github.com/cloudfoundry/libbuildpack
-//go:generate mockgen -source=vendor/code.cloudfoundry.org/buildpackapplifecycle/buildpackrunner/runner.go --destination=mocks_runner_test.go --package=main_test
+//go:generate mockgen -source=compile.go --destination=mocks_runner_test.go --package=main_test
 
 var _ = Describe("Compile", func() {
 	var (
@@ -84,32 +83,35 @@ var _ = Describe("Compile", func() {
 
 	})
 
-	Describe("RunBuildpacks", func() {
-		var (
-			stagingInfo string
-			newBuildDir string
-		)
-
+	Describe("NewLifecycleBuilderConfig", func() {
 		BeforeEach(func() {
-			newBuildDir = "/tmp/abcd1234/app"
+			buildpacks = []string{"a", "b", "c"}
 		})
+
+		It("", func() {
+			config, err := compiler.NewLifecycleBuilderConfig("/tmp/mystring")
+			Expect(err).To(BeNil())
+
+			Expect(config.BuildDir()).To(Equal("/tmp/mystring"))
+			Expect(config.BuildpackOrder()).To(Equal(buildpacks))
+			Expect(config.OutputDroplet()).To(Equal("/dev/null"))
+			Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
+			Expect(config.BuildArtifactsCacheDir()).To(Equal(cacheDir))
+		})
+	})
+
+	Describe("RunBuildpacks", func() {
 		Context("a list of buildpacks is provided", func() {
 			BeforeEach(func() {
 				buildpacks = []string{"third_buildpack", "fourth_buildpack"}
 			})
 
 			JustBeforeEach(func() {
-				mockRunner.EXPECT().Run(gomock.Any()).Do(func(config *buildpackapplifecycle.LifecycleBuilderConfig) {
-					Expect(config.BuildDir()).To(Equal(newBuildDir))
-					Expect(config.BuildpackOrder()).To(Equal(buildpacks))
-					Expect(config.OutputDroplet()).To(Equal("/dev/null"))
-					Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
-					Expect(config.BuildArtifactsCacheDir()).To(Equal(cacheDir))
-				}).Return("fourth/staging_info.yml", nil)
+				mockRunner.EXPECT().Run().Return("fourth/staging_info.yml", nil)
 			})
 
 			It("returns the location of the last staging_info.yml", func() {
-				stagingInfo, err = compiler.RunBuildpacks(newBuildDir)
+				stagingInfo, err := compiler.RunBuildpacks()
 				Expect(err).To(BeNil())
 				Expect(stagingInfo).To(Equal("fourth/staging_info.yml"))
 			})
@@ -117,9 +119,9 @@ var _ = Describe("Compile", func() {
 
 		Context("a list of buildpacks is empty", func() {
 			It("returns without calling runner.Run", func() {
-				mockRunner.EXPECT().Run(gomock.Any()).Times(0)
+				mockRunner.EXPECT().Run().Times(0)
 
-				stagingInfo, err = compiler.RunBuildpacks(newBuildDir)
+				stagingInfo, err := compiler.RunBuildpacks()
 				Expect(err).To(BeNil())
 
 				Expect(stagingInfo).To(Equal(""))

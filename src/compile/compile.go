@@ -12,12 +12,16 @@ import (
 	"github.com/cloudfoundry/libbuildpack"
 )
 
+type Runner interface {
+	Run() (string, error)
+}
+
 // MultiCompiler a struct to compile this buildpack
 type MultiCompiler struct {
 	Compiler     *libbuildpack.Compiler
 	Buildpacks   []string
 	DownloadsDir string
-	Runner       buildpackrunner.Runner
+	Runner       Runner
 }
 
 func main() {
@@ -60,7 +64,7 @@ func NewMultiCompiler(compiler *libbuildpack.Compiler, buildpacks []string) (*Mu
 		Compiler:     compiler,
 		Buildpacks:   buildpacks,
 		DownloadsDir: downloadsDir,
-		Runner:       buildpackrunner.New(),
+		Runner:       nil,
 	}
 	return mc, nil
 }
@@ -73,7 +77,15 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
-	stagingInfoFile, err := c.RunBuildpacks(newBuildDir)
+	config, err := c.NewLifecycleBuilderConfig(newBuildDir)
+	if err != nil {
+		c.Compiler.Log.Error("Unable to set up runner config: %s", err.Error())
+		return err
+	}
+
+	c.Runner = buildpackrunner.New(&config)
+
+	stagingInfoFile, err := c.RunBuildpacks()
 	if err != nil {
 		c.Compiler.Log.Error("Unable to run all buildpacks: %s", err.Error())
 		return err
@@ -123,28 +135,7 @@ func (c *MultiCompiler) MoveBuildDir() (string, error) {
 	return newDir, nil
 }
 
-// RunBuildpacks calls the builder
-func (c *MultiCompiler) RunBuildpacks(newBuildDir string) (string, error) {
-	if len(c.Buildpacks) == 0 {
-		return "", nil
-	}
-
-	c.Compiler.Log.BeginStep("Running buildpacks:")
-	c.Compiler.Log.Info(strings.Join(c.Buildpacks, "\n"))
-
-	config, err := c.newLifecycleBuilderConfig(newBuildDir)
-	if err != nil {
-		return "", err
-	}
-
-	if err := config.Validate(); err != nil {
-		return "", err
-	}
-
-	return c.Runner.Run(&config)
-}
-
-func (c *MultiCompiler) newLifecycleBuilderConfig(buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
+func (c *MultiCompiler) NewLifecycleBuilderConfig(buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
 	cfg := buildpackapplifecycle.NewLifecycleBuilderConfig([]string{}, true, false)
 	if err := cfg.Set("buildpacksDir", c.DownloadsDir); err != nil {
 		return cfg, err
@@ -162,7 +153,24 @@ func (c *MultiCompiler) newLifecycleBuilderConfig(buildDir string) (buildpackapp
 	if err := cfg.Set("buildArtifactsCacheDir", c.Compiler.CacheDir); err != nil {
 		return cfg, err
 	}
+
+	if err := cfg.Validate(); err != nil {
+		return cfg, err
+	}
+
 	return cfg, nil
+}
+
+// RunBuildpacks calls the builder
+func (c *MultiCompiler) RunBuildpacks() (string, error) {
+	if len(c.Buildpacks) == 0 {
+		return "", nil
+	}
+
+	c.Compiler.Log.BeginStep("Running buildpacks:")
+	c.Compiler.Log.Info(strings.Join(c.Buildpacks, "\n"))
+
+	return c.Runner.Run()
 }
 
 // CleanupStagingArea moves prepares the staging container to be tarred by the old lifecycle
