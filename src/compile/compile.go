@@ -97,9 +97,9 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
-	err = libbuildpack.WriteProfileD(newBuildDir, "00-multi.sh", "mv .deps ../deps")
+	err = libbuildpack.WriteProfileD(newBuildDir, "00000000-multi.sh", "mv .deps ../deps")
 	if err != nil {
-		c.Compiler.Log.Warning("Unable create .profile.d/00-multi.sh script: %s", err.Error())
+		c.Compiler.Log.Warning("Unable create .profile.d/00000000-multi.sh script: %s", err.Error())
 		return err
 	}
 
