@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "d7ce9167e2437064f41680abc4a6c35c8c527ad9",
+			"revision": "ead0457b8d48943729abc4f97162fa520b4ac75b",
 			"branch": "multi",
 			"notests": true
 		},
@@ -94,18 +94,10 @@
 			"notests": true
 		},
 		{
-			"importpath": "github.com/google/uuid",
-			"repository": "https://github.com/google/uuid",
-			"vcs": "git",
-			"revision": "6a5e28554805e78ea6141142aba763936c4761c0",
-			"branch": "master",
-			"notests": true
-		},
-		{
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "ab07225d112dc7a93c289ac5b2e12735c2c46035",
+			"revision": "5ca121185e255e5041d7727d77992618545a93d2",
 			"branch": "master",
 			"notests": true
 		},
