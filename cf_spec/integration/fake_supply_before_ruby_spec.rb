@@ -12,12 +12,12 @@ describe 'running supply buildpacks before the ruby buildpack' do
   context 'the app is pushed once' do
     let (:app_name) { 'fake_supply_ruby_app' }
 
-    it 'finds the supplied "dependency" in the runtime container' do
+    it 'finds the supplied dependency in the runtime container' do
       expect(app).to be_running
-      expect(app).to have_logged "SUPPLYING"
+      expect(app).to have_logged "SUPPLYING DOTNET"
 
       browser.visit_path('/')
-      expect(browser).to have_body('always-detects-buildpack')
+      expect(browser).to have_body(/dotnet: 1.0.1/)
     end
   end
 
