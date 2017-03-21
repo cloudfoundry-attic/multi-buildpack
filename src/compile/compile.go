@@ -25,18 +25,15 @@ type MultiCompiler struct {
 }
 
 func main() {
-	buildDir := os.Args[1]
-	cacheDir := os.Args[2]
-
 	logger := libbuildpack.NewLogger()
 
-	compiler, err := libbuildpack.NewCompiler(buildDir, cacheDir, logger)
+	compiler, err := libbuildpack.NewCompiler(os.Args[1:], logger)
 	err = compiler.CheckBuildpackValid()
 	if err != nil {
 		panic(err)
 	}
 
-	buildpacks, err := GetBuildpacks(buildDir, logger)
+	buildpacks, err := GetBuildpacks(compiler.BuildDir, logger)
 	if err != nil {
 		panic(err)
 	}
