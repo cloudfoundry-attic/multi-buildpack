@@ -1,0 +1,4 @@
+buildpacks:
+  - https://buildpacks.cloudfoundry.org/fixtures/fake_supply_dotnet.zip
+  - https://github.com/cloudfoundry/staticfile-buildpack#develop
+
