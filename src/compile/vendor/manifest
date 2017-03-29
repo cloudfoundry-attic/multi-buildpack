@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "f624898c8c6bec0dfb2bbbace65a649e13280d8d",
+			"revision": "1c09b9a6aa9639062a6b942c6c3d57188e2d77b7",
 			"branch": "multi",
 			"notests": true
 		},
@@ -39,7 +39,7 @@
 			"importpath": "code.cloudfoundry.org/cacheddownloader",
 			"repository": "https://github.com/cloudfoundry/cacheddownloader",
 			"vcs": "git",
-			"revision": "6a8779a4c885bc7c6d8d9ba8d7517f3dfd694907",
+			"revision": "6fb5780964b9269f33f33167145d48550b49e0b6",
 			"branch": "master",
 			"notests": true
 		},
@@ -52,10 +52,18 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/Masterminds/semver",
+			"repository": "https://github.com/Masterminds/semver",
+			"vcs": "git",
+			"revision": "0a299beba2ae1df55623af7412bd5015ba97f209",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/cloudfoundry/libbuildpack",
 			"repository": "https://github.com/cloudfoundry/libbuildpack",
 			"vcs": "git",
-			"revision": "72c85e7a8f7f9e334dca74a2701b5070001c3327",
+			"revision": "64d4841027cde77be9e7e316ab22f511d071a4b9",
 			"branch": "master",
 			"notests": true
 		},
@@ -97,7 +105,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "67b9df7f55fe1165fd9ad49aca7754cce01a42b8",
+			"revision": "13c94a130ef24c498bdb2d8d3873cf7790925dcf",
 			"branch": "master",
 			"notests": true
 		},
@@ -105,7 +113,7 @@
 			"importpath": "github.com/onsi/gomega",
 			"repository": "https://github.com/onsi/gomega",
 			"vcs": "git",
-			"revision": "c5ef0831376c8ddd17f7deb3d343d981d38a3c23",
+			"revision": "334b8f472b3af5d541c5642701c1e29e2126f486",
 			"branch": "master",
 			"notests": true
 		},
@@ -113,7 +121,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "99f16d856c9836c42d24e7ab64ea72916925fa97",
+			"revision": "9a7256cb28ed514b4e1e5f68959914c4c28a92e0",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

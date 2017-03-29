@@ -2,7 +2,6 @@ package cacheddownloader
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
@@ -12,8 +11,6 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/lager"
-
-	"github.com/cloudfoundry/systemcerts"
 )
 
 const (
@@ -67,16 +64,11 @@ type Downloader struct {
 	concurrentDownloadBarrier chan struct{}
 }
 
-func NewDownloader(requestTimeout time.Duration, maxConcurrentDownloads int, skipSSLVerification bool, caCertPool *systemcerts.CertPool) *Downloader {
-	return NewDownloaderWithIdleTimeout(requestTimeout, 10*time.Second, maxConcurrentDownloads, skipSSLVerification, caCertPool)
+func NewDownloader(requestTimeout time.Duration, maxConcurrentDownloads int, tlsConfig *tls.Config) *Downloader {
+	return NewDownloaderWithIdleTimeout(requestTimeout, 10*time.Second, maxConcurrentDownloads, tlsConfig)
 }
 
-func NewDownloaderWithIdleTimeout(requestTimeout time.Duration, idleTimeout time.Duration, maxConcurrentDownloads int, skipSSLVerification bool, caCertPool *systemcerts.CertPool) *Downloader {
-	var certPool *x509.CertPool
-	if caCertPool != nil {
-		certPool = caCertPool.AsX509CertPool()
-	}
-
+func NewDownloaderWithIdleTimeout(requestTimeout time.Duration, idleTimeout time.Duration, maxConcurrentDownloads int, tlsConfig *tls.Config) *Downloader {
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		Dial: func(netw, addr string) (net.Conn, error) {
@@ -91,12 +83,8 @@ func NewDownloaderWithIdleTimeout(requestTimeout time.Duration, idleTimeout time
 			return &idleTimeoutConn{idleTimeout, c}, nil
 		},
 		TLSHandshakeTimeout: 10 * time.Second,
-		TLSClientConfig: &tls.Config{
-			RootCAs:            certPool,
-			InsecureSkipVerify: skipSSLVerification,
-			MinVersion:         tls.VersionTLS10,
-		},
-		DisableKeepAlives: true,
+		TLSClientConfig:     tlsConfig,
+		DisableKeepAlives:   true,
 	}
 
 	client := &http.Client{
