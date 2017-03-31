@@ -30,22 +30,22 @@ func main() {
 	compiler, err := libbuildpack.NewCompiler(os.Args[1:], logger)
 	err = compiler.CheckBuildpackValid()
 	if err != nil {
-		panic(err)
+		os.Exit(10)
 	}
 
 	buildpacks, err := GetBuildpacks(compiler.BuildDir, logger)
 	if err != nil {
-		panic(err)
+		os.Exit(11)
 	}
 
 	mc, err := NewMultiCompiler(compiler, buildpacks)
 	if err != nil {
-		panic(err)
+		os.Exit(12)
 	}
 
 	err = mc.Compile()
 	if err != nil {
-		panic(err)
+		os.Exit(13)
 	}
 
 	compiler.StagingComplete()
