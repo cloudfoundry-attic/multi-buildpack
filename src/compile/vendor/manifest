@@ -63,7 +63,7 @@
 			"importpath": "github.com/cloudfoundry/libbuildpack",
 			"repository": "https://github.com/cloudfoundry/libbuildpack",
 			"vcs": "git",
-			"revision": "64d4841027cde77be9e7e316ab22f511d071a4b9",
+			"revision": "1d90c9c4ea4df8fa337cc18a3aa146b94b1032b0",
 			"branch": "master",
 			"notests": true
 		},
@@ -87,7 +87,7 @@
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
+			"revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
 			"branch": "master",
 			"path": "/proto",
 			"notests": true
@@ -96,7 +96,7 @@
 			"importpath": "github.com/golang/protobuf/ptypes/any",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
+			"revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
 			"branch": "master",
 			"path": "ptypes/any",
 			"notests": true
