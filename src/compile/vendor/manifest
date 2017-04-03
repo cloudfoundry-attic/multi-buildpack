@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "1c09b9a6aa9639062a6b942c6c3d57188e2d77b7",
+			"revision": "862b24ac8f0019ca3727ee98b7baa1f3eaad1c6e",
 			"branch": "multi",
 			"notests": true
 		},
@@ -105,7 +105,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "13c94a130ef24c498bdb2d8d3873cf7790925dcf",
+			"revision": "d77ac73b3158beef5e072936829e575458d0ca1c",
 			"branch": "master",
 			"notests": true
 		},
