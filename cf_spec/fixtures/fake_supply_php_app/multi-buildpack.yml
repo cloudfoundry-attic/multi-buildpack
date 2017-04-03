@@ -1,4 +1,4 @@
 buildpacks:
-  - https://buildpacks.cloudfoundry.org/fixtures/fake_supply_dotnet.zip
+  - https://buildpacks.cloudfoundry.org/fixtures/new_supply_dotnet.zip
   - https://github.com/cloudfoundry/php-buildpack#develop
 
