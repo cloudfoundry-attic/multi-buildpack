@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 
 	"bytes"
 
@@ -88,11 +87,11 @@ var _ = Describe("Compile", func() {
 			buildpacks = []string{"a", "b", "c"}
 		})
 
-		It("", func() {
-			config, err := compiler.NewLifecycleBuilderConfig("/tmp/mystring")
+		It("sets the correct properties on the config object", func() {
+			config, err := compiler.NewLifecycleBuilderConfig()
 			Expect(err).To(BeNil())
 
-			Expect(config.BuildDir()).To(Equal("/tmp/mystring"))
+			Expect(config.BuildDir()).To(Equal(buildDir))
 			Expect(config.BuildpackOrder()).To(Equal(buildpacks))
 			Expect(config.OutputDroplet()).To(Equal("/dev/null"))
 			Expect(config.BuildpacksDir()).To(Equal(downloadsDir))
@@ -130,112 +129,51 @@ var _ = Describe("Compile", func() {
 		})
 	})
 
-	Describe("MoveBuildDir", func() {
-		BeforeEach(func() {
-			err = ioutil.WriteFile(filepath.Join(buildDir, "file1.txt"), []byte("test"), 0644)
-			Expect(err).To(BeNil())
-
-			err = ioutil.WriteFile(filepath.Join(buildDir, "file2.txt"), []byte("test2"), 0644)
-			Expect(err).To(BeNil())
-		})
-
-		Context("there are no errors", func() {
-			It("moves the build dir to the new location", func() {
-				newDir, err := compiler.MoveBuildDir()
-				Expect(err).To(BeNil())
-
-				Expect(newDir).NotTo(Equal(buildDir))
-				Expect(ioutil.ReadFile(filepath.Join(newDir, "file1.txt"))).To(Equal([]byte("test")))
-				Expect(ioutil.ReadFile(filepath.Join(newDir, "file2.txt"))).To(Equal([]byte("test2")))
-			})
-
-			It("the old build dir location is a symlink to the new build dir", func() {
-				newDir, err := compiler.MoveBuildDir()
-				Expect(err).To(BeNil())
-
-				buildDirInfo, err := os.Lstat(buildDir)
-				Expect(err).To(BeNil())
-				Expect(buildDirInfo.Mode() & os.ModeSymlink).NotTo(Equal(0000))
-
-				symlinkDest, err := os.Readlink(buildDir)
-				Expect(err).To(BeNil())
-				Expect(symlinkDest).To(Equal(newDir))
-			})
-
-			It("the new directory is of the form /<temp>/<8+ char>/app", func() {
-				newDir, err := compiler.MoveBuildDir()
-				Expect(err).To(BeNil())
-
-				dirRegex := regexp.MustCompile(`\/.{3,}\/[A-Za-z0-9]{8,}\/app`)
-				Expect(dirRegex.Match([]byte(newDir))).To(BeTrue())
-			})
-		})
-	})
-
 	Describe("CleanupStagingArea", func() {
 		var (
-			newBuildRoot string
-			newBuildDir  string
-			newDepsDir   string
+			contentsDir string
+			depsDir     string
 		)
 
 		BeforeEach(func() {
-			newBuildRoot, err = ioutil.TempDir("", "return")
+			contentsDir, err = ioutil.TempDir("", "contents")
 			Expect(err).To(BeNil())
 
-			newBuildDir = filepath.Join(newBuildRoot, "app")
-			err = os.MkdirAll(newBuildDir, 0755)
+			depsDir = filepath.Join(contentsDir, "deps")
+			err = os.MkdirAll(depsDir, 0755)
 			Expect(err).To(BeNil())
 
-			err = ioutil.WriteFile(filepath.Join(newBuildDir, "file1.txt"), []byte("test"), 0644)
+			err = ioutil.WriteFile(filepath.Join(depsDir, "dep1.txt"), []byte("x1"), 0644)
 			Expect(err).To(BeNil())
 
-			err = ioutil.WriteFile(filepath.Join(newBuildDir, "file2.txt"), []byte("test2"), 0644)
-			Expect(err).To(BeNil())
-
-			newDepsDir = filepath.Join(newBuildRoot, "deps")
-			err = os.MkdirAll(newDepsDir, 0755)
-			Expect(err).To(BeNil())
-
-			err = ioutil.WriteFile(filepath.Join(newDepsDir, "dep1.txt"), []byte("x1"), 0644)
-			Expect(err).To(BeNil())
-
-			err = ioutil.WriteFile(filepath.Join(newDepsDir, "dep2.txt"), []byte("x2"), 0644)
+			err = ioutil.WriteFile(filepath.Join(depsDir, "dep2.txt"), []byte("x2"), 0644)
 			Expect(err).To(BeNil())
 
 			Expect(downloadsDir).To(BeADirectory())
 		})
 
 		AfterEach(func() {
-			err = os.RemoveAll(newBuildDir)
+			err = os.RemoveAll(contentsDir)
 			Expect(err).To(BeNil())
 		})
 
 		Context("there are no errors", func() {
-			It("returns the build dir to the previous location", func() {
-				err := compiler.CleanupStagingArea(newBuildDir)
-				Expect(err).To(BeNil())
-
-				Expect(ioutil.ReadFile(filepath.Join(buildDir, "file1.txt"))).To(Equal([]byte("test")))
-				Expect(ioutil.ReadFile(filepath.Join(buildDir, "file2.txt"))).To(Equal([]byte("test2")))
-			})
-
 			It("deletes the directory containing the downloaded buildpacks", func() {
-				err := compiler.CleanupStagingArea(newBuildDir)
+				err := compiler.CleanupStagingArea()
 				Expect(err).To(BeNil())
 
 				Expect(downloadsDir).NotTo(BeADirectory())
 			})
 
-			It("it moves <buildDir>/../deps to <buildDir>/.deps", func() {
-				depsDir := filepath.Join(buildDir, ".deps")
+			It("it moves /tmp/<contents>/deps to <buildDir>/.deps", func() {
+				buildDepsDir := filepath.Join(buildDir, ".deps")
 
-				err := compiler.CleanupStagingArea(newBuildDir)
+				err := compiler.CleanupStagingArea()
 				Expect(err).To(BeNil())
 
-				Expect(depsDir).To(BeADirectory())
-				Expect(ioutil.ReadFile(filepath.Join(depsDir, "dep1.txt"))).To(Equal([]byte("x1")))
-				Expect(ioutil.ReadFile(filepath.Join(depsDir, "dep2.txt"))).To(Equal([]byte("x2")))
+				Expect(buildDepsDir).To(BeADirectory())
+				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep1.txt"))).To(Equal([]byte("x1")))
+				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep2.txt"))).To(Equal([]byte("x2")))
 			})
 		})
 	})

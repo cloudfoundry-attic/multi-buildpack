@@ -68,13 +68,7 @@ func NewMultiCompiler(compiler *libbuildpack.Compiler, buildpacks []string) (*Mu
 
 // Compile this buildpack
 func (c *MultiCompiler) Compile() error {
-	newBuildDir, err := c.MoveBuildDir()
-	if err != nil {
-		c.Compiler.Log.Error("Unable to move app directory: %s", err.Error())
-		return err
-	}
-
-	config, err := c.NewLifecycleBuilderConfig(newBuildDir)
+	config, err := c.NewLifecycleBuilderConfig()
 	if err != nil {
 		c.Compiler.Log.Error("Unable to set up runner config: %s", err.Error())
 		return err
@@ -94,13 +88,13 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
-	err = libbuildpack.WriteProfileD(newBuildDir, "00000000-multi.sh", "mv .deps ../deps && export DEPS_DIR=$HOME/../deps\n")
+	err = libbuildpack.WriteProfileD(c.Compiler.BuildDir, "00000000-multi.sh", "mv .deps ../deps && export DEPS_DIR=$HOME/../deps\n")
 	if err != nil {
 		c.Compiler.Log.Warning("Unable create .profile.d/00000000-multi.sh script: %s", err.Error())
 		return err
 	}
 
-	err = c.CleanupStagingArea(newBuildDir)
+	err = c.CleanupStagingArea()
 	if err != nil {
 		c.Compiler.Log.Warning("Unable to clean staging container: %s", err.Error())
 		return err
@@ -109,30 +103,7 @@ func (c *MultiCompiler) Compile() error {
 	return nil
 }
 
-func (c *MultiCompiler) MoveBuildDir() (string, error) {
-	tempDir, err := ioutil.TempDir("", "")
-	if err != nil {
-		return "", err
-	}
-
-	newDir := filepath.Join(tempDir, "app")
-
-	c.Compiler.Log.BeginStep("Staging app in %s", newDir)
-	err = os.Rename(c.Compiler.BuildDir, newDir)
-	if err != nil {
-		return "", err
-	}
-
-	err = os.Symlink(newDir, c.Compiler.BuildDir)
-	if err != nil {
-		fmt.Println(err.Error())
-		return "", err
-	}
-
-	return newDir, nil
-}
-
-func (c *MultiCompiler) NewLifecycleBuilderConfig(buildDir string) (buildpackapplifecycle.LifecycleBuilderConfig, error) {
+func (c *MultiCompiler) NewLifecycleBuilderConfig() (buildpackapplifecycle.LifecycleBuilderConfig, error) {
 	cfg := buildpackapplifecycle.NewLifecycleBuilderConfig([]string{}, true, false)
 	if err := cfg.Set("buildpacksDir", c.DownloadsDir); err != nil {
 		return cfg, err
@@ -143,7 +114,7 @@ func (c *MultiCompiler) NewLifecycleBuilderConfig(buildDir string) (buildpackapp
 	if err := cfg.Set("outputDroplet", "/dev/null"); err != nil {
 		return cfg, err
 	}
-	if err := cfg.Set("buildDir", buildDir); err != nil {
+	if err := cfg.Set("buildDir", c.Compiler.BuildDir); err != nil {
 		return cfg, err
 	}
 
@@ -171,26 +142,18 @@ func (c *MultiCompiler) RunBuildpacks() (string, error) {
 }
 
 // CleanupStagingArea moves prepares the staging container to be tarred by the old lifecycle
-func (c *MultiCompiler) CleanupStagingArea(newBuildDir string) error {
-	err := os.RemoveAll(c.DownloadsDir)
-	if err != nil {
+func (c *MultiCompiler) CleanupStagingArea() error {
+	if err := os.RemoveAll(c.DownloadsDir); err != nil {
 		c.Compiler.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
 	}
 
-	oldDepsDir, err := filepath.Abs(filepath.Join(newBuildDir, "..", "deps"))
+	depsDirs, err := filepath.Glob(filepath.Join(os.TempDir(), "contents*", "deps"))
 	if err != nil {
 		return err
 	}
 
-	err = os.Rename(oldDepsDir, filepath.Join(newBuildDir, ".deps"))
-	if err != nil {
-		return err
+	if len(depsDirs) != 1 {
+		return fmt.Errorf("found %d deps dirs, expected 1", len(depsDirs))
 	}
-
-	err = os.Remove(c.Compiler.BuildDir)
-	if err != nil {
-		return err
-	}
-
-	return os.Rename(newBuildDir, c.Compiler.BuildDir)
+	return os.Rename(depsDirs[0], filepath.Join(c.Compiler.BuildDir, ".deps"))
 }
