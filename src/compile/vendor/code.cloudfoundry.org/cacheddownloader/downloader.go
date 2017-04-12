@@ -108,19 +108,23 @@ func (downloader *Downloader) Download(
 ) (path string, cachingInfoOut CachingInfoType, err error) {
 
 	startTime := time.Now()
+	logger = logger.Session("download", lager.Data{"host": url.Host})
+	logger.Info("starting")
+	defer logger.Info("completed", lager.Data{"duration-ns": time.Now().Sub(startTime)})
 
 	select {
 	case downloader.concurrentDownloadBarrier <- struct{}{}:
 	case <-cancelChan:
 		return "", CachingInfoType{}, NewDownloadCancelledError("download-barrier", time.Now().Sub(startTime), NoBytesReceived)
 	}
+	logger.Info("download-barrier", lager.Data{"duration-ns": time.Now().Sub(startTime)})
 
 	defer func() {
 		<-downloader.concurrentDownloadBarrier
 	}()
 
 	for attempt := 0; attempt < MAX_DOWNLOAD_ATTEMPTS; attempt++ {
-		path, cachingInfoOut, err = downloader.fetchToFile(url, createDestination, cachingInfoIn, checksum, cancelChan)
+		path, cachingInfoOut, err = downloader.fetchToFile(logger, url, createDestination, cachingInfoIn, checksum, cancelChan)
 
 		if err == nil {
 			break
@@ -143,6 +147,7 @@ func (downloader *Downloader) Download(
 }
 
 func (downloader *Downloader) fetchToFile(
+	logger lager.Logger,
 	url *url.URL,
 	createDestination func() (*os.File, error),
 	cachingInfoIn CachingInfoType,
@@ -180,7 +185,10 @@ func (downloader *Downloader) fetchToFile(
 	startTime := time.Now()
 
 	var resp *http.Response
+	reqStart := time.Now()
 	resp, err = downloader.client.Do(req)
+	logger.Info("fetch-request", lager.Data{"duration-ns": time.Now().Sub(reqStart)})
+
 	if err != nil {
 		select {
 		case <-cancelChan:
@@ -205,6 +213,28 @@ func (downloader *Downloader) fetchToFile(
 		return "", CachingInfoType{}, err
 	}
 
+	go func() {
+		select {
+		case <-completeChan:
+		case <-cancelChan:
+			resp.Body.Close()
+		}
+	}()
+
+	return copyToDestinationFile(logger, destinationFile, resp, checksum, cancelChan)
+}
+
+func copyToDestinationFile(
+	logger lager.Logger,
+	destinationFile *os.File,
+	resp *http.Response,
+	checksum ChecksumInfoType,
+	cancelChan <-chan struct{},
+) (string, CachingInfoType, error) {
+	var err error
+	var checksumValidator *hashValidator
+	logger = logger.Session("copy-to-destination-file", lager.Data{"destination": destinationFile.Name()})
+
 	defer func() {
 		destinationFile.Close()
 		if err != nil {
@@ -222,17 +252,7 @@ func (downloader *Downloader) fetchToFile(
 		return "", CachingInfoType{}, err
 	}
 
-	go func() {
-		select {
-		case <-completeChan:
-		case <-cancelChan:
-			resp.Body.Close()
-		}
-	}()
-
 	ioWriters := []io.Writer{destinationFile}
-
-	var checksumValidator *hashValidator
 
 	// if checksum data is provided, create the checksum validator
 	if checksum.Algorithm != "" || checksum.Value != "" {
@@ -243,9 +263,11 @@ func (downloader *Downloader) fetchToFile(
 		ioWriters = append(ioWriters, checksumValidator.hash)
 	}
 
-	startTime = time.Now()
+	startTime := time.Now()
 	written, err := io.Copy(io.MultiWriter(ioWriters...), resp.Body)
+
 	if err != nil {
+		logger.Error("copy-failed", err, lager.Data{"duration-ns": time.Now().Sub(startTime), "bytes-written": written})
 		select {
 		case <-cancelChan:
 			err = NewDownloadCancelledError("copy-body", time.Now().Sub(startTime), written)
@@ -253,6 +275,7 @@ func (downloader *Downloader) fetchToFile(
 		}
 		return "", CachingInfoType{}, err
 	}
+	logger.Info("copy-finished", lager.Data{"duration-ns": time.Now().Sub(startTime), "bytes-written": written})
 
 	cachingInfoOut := CachingInfoType{
 		ETag:         resp.Header.Get("ETag"),

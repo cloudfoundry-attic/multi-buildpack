@@ -55,7 +55,7 @@ var _ = Describe("Compile", func() {
 	})
 
 	JustBeforeEach(func() {
-		bpc := &bp.Compiler{
+		bps := &bp.Stager{
 			BuildDir: buildDir,
 			CacheDir: cacheDir,
 			Manifest: mockManifest,
@@ -63,7 +63,7 @@ var _ = Describe("Compile", func() {
 		}
 
 		compiler = &c.MultiCompiler{
-			Compiler:     bpc,
+			Stager:     bps,
 			Buildpacks:   buildpacks,
 			DownloadsDir: downloadsDir,
 			Runner:       mockRunner,

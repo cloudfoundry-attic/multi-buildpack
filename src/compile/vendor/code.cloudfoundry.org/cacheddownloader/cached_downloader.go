@@ -198,7 +198,7 @@ func (c *cachedDownloader) fetchUncachedFile(logger lager.Logger, url *url.URL, 
 }
 
 func (c *cachedDownloader) fetchCachedFile(logger lager.Logger, url *url.URL, cacheKey string, checksum ChecksumInfoType, cancelChan <-chan struct{}) (*CachedFile, int64, error) {
-	rateLimiter, err := c.acquireLimiter(cacheKey, cancelChan)
+	rateLimiter, err := c.acquireLimiter(logger, cacheKey, cancelChan)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -249,7 +249,7 @@ func (c *cachedDownloader) FetchAsDirectory(logger lager.Logger, url *url.URL, c
 }
 
 func (c *cachedDownloader) fetchCachedDirectory(logger lager.Logger, url *url.URL, cacheKey string, checksum ChecksumInfoType, cancelChan <-chan struct{}) (string, int64, error) {
-	rateLimiter, err := c.acquireLimiter(cacheKey, cancelChan)
+	rateLimiter, err := c.acquireLimiter(logger, cacheKey, cancelChan)
 	if err != nil {
 		return "", 0, err
 	}
@@ -290,8 +290,11 @@ func (c *cachedDownloader) fetchCachedDirectory(logger lager.Logger, url *url.UR
 	return "", 0, NotCacheable
 }
 
-func (c *cachedDownloader) acquireLimiter(cacheKey string, cancelChan <-chan struct{}) (chan struct{}, error) {
+func (c *cachedDownloader) acquireLimiter(logger lager.Logger, cacheKey string, cancelChan <-chan struct{}) (chan struct{}, error) {
 	startTime := time.Now()
+	logger = logger.Session("acquire-rate-limiter")
+	logger.Info("starting")
+	defer logger.Info("completed", lager.Data{"duration-ns": time.Now().Sub(startTime)})
 
 	for {
 		c.lock.Lock()
