@@ -3,9 +3,9 @@ require 'yaml'
 require 'spec_helper'
 require 'open3'
 
-xdescribe 'running supply buildpacks before the ruby buildpack' do
+describe 'running supply buildpacks before the ruby buildpack' do
   let(:buildpack) { "multi-unpackaged-buildpack-#{rand(1000)}" }
-  let(:app) { Machete.deploy_app(app_name, buildpack: buildpack) }
+  let(:app) { Machete.deploy_app(app_name, buildpack: buildpack, skip_verify_version: true) }
   let(:browser) { Machete::Browser.new(app) }
 
   before do
