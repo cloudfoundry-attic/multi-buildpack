@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "862b24ac8f0019ca3727ee98b7baa1f3eaad1c6e",
+			"revision": "653cb0a54f541f5030b034dcf5325aeafdf70dfc",
 			"branch": "multi",
 			"notests": true
 		},
@@ -39,7 +39,7 @@
 			"importpath": "code.cloudfoundry.org/cacheddownloader",
 			"repository": "https://github.com/cloudfoundry/cacheddownloader",
 			"vcs": "git",
-			"revision": "d649e606d6ac7a042827eece46f1d60233e411cc",
+			"revision": "11f84643f31e2ba139a7ae74c7b648782e5c275e",
 			"branch": "master",
 			"notests": true
 		},
@@ -56,6 +56,14 @@
 			"repository": "https://github.com/Masterminds/semver",
 			"vcs": "git",
 			"revision": "923f129261de8c3e45d529e39824061bd5edf9aa",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/cloudfoundry-incubator/candiedyaml",
+			"repository": "https://github.com/cloudfoundry-incubator/candiedyaml",
+			"vcs": "git",
+			"revision": "cff29b469e0f490ab8c169b6a2c237543f46a1de",
 			"branch": "master",
 			"notests": true
 		},
@@ -105,7 +113,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "f40a49d81e5c12e90400620b6242fb29a8e7c9d9",
+			"revision": "6adbc2648389a46e8ff0e96d07a07a9a9eb432de",
 			"branch": "master",
 			"notests": true
 		},
@@ -121,7 +129,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "f3918c30c5c2cb527c0b071a27c35120a6c0719a",
+			"revision": "ea9bcade75cb975a0b9738936568ab388b845617",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	yaml "gopkg.in/yaml.v2"
+	"github.com/cloudfoundry-incubator/candiedyaml"
 
 	"code.cloudfoundry.org/buildpackapplifecycle"
 	"code.cloudfoundry.org/bytefmt"
@@ -191,8 +191,8 @@ func (runner *Runner) makeDirectories() error {
 			}
 		}
 
-		for _, subDir := range runner.config.DepsSubDirs() {
-			if err := os.MkdirAll(path.Join(runner.depsDir, subDir), 0755); err != nil {
+		for _, index := range runner.config.DepsIndices() {
+			if err := os.MkdirAll(path.Join(runner.depsDir, index), 0755); err != nil {
 				return err
 			}
 		}
@@ -305,14 +305,26 @@ func (runner *Runner) supplyCachePath(buildpack string) string {
 	return filepath.Join(runner.config.BuildArtifactsCacheDir(), fmt.Sprintf("%x", md5.Sum([]byte(buildpack))))
 }
 
-func hasFinalize(buildpackPath string) bool {
+func hasFinalize(buildpackPath string) (bool, error) {
 	_, err := os.Stat(filepath.Join(buildpackPath, "bin", "finalize"))
-	return err == nil
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
-func hasSupply(buildpackPath string) bool {
+func hasSupply(buildpackPath string) (bool, error) {
 	_, err := os.Stat(filepath.Join(buildpackPath, "bin", "supply"))
-	return err == nil
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 // returns buildpack path, ok
@@ -324,7 +336,7 @@ func (runner *Runner) runMultiBuildpacks() (string, error) {
 			return "", newDescriptiveError(err, buildpackapplifecycle.SupplyFailMsg)
 		}
 
-		err = runner.run(exec.Command(path.Join(buildpackPath, "bin", "supply"), runner.config.BuildDir(), runner.supplyCachePath(buildpack), runner.depsDir, runner.config.DepsSubDirs()[i]), os.Stdout)
+		err = runner.run(exec.Command(path.Join(buildpackPath, "bin", "supply"), runner.config.BuildDir(), runner.supplyCachePath(buildpack), runner.depsDir, runner.config.DepsIndices()[i]), os.Stdout)
 		if err != nil {
 			return "", newDescriptiveError(err, buildpackapplifecycle.SupplyFailMsg)
 		}
@@ -340,22 +352,32 @@ func (runner *Runner) runFinalBuildpack() (string, error) {
 		return "", newDescriptiveError(err, buildpackapplifecycle.FinalizeFailMsg)
 	}
 
-	depsSubDir := runner.config.FinalDepsSubDir()
+	depsIndex := runner.config.FinalDepsIndex()
 	cacheDir := filepath.Join(runner.config.BuildArtifactsCacheDir(), "primary")
 
-	if hasFinalize(buildpackPath) {
-		if hasSupply(buildpackPath) {
-			if err := runner.run(exec.Command(path.Join(buildpackPath, "bin", "supply"), runner.config.BuildDir(), cacheDir, runner.depsDir, depsSubDir), os.Stdout); err != nil {
+	hasFinalize, err := hasFinalize(buildpackPath)
+	if err != nil {
+		return "", newDescriptiveError(err, buildpackapplifecycle.FinalizeFailMsg)
+	}
+
+	if hasFinalize {
+		hasSupply, err := hasSupply(buildpackPath)
+		if err != nil {
+			return "", newDescriptiveError(err, buildpackapplifecycle.SupplyFailMsg)
+		}
+
+		if hasSupply {
+			if err := runner.run(exec.Command(path.Join(buildpackPath, "bin", "supply"), runner.config.BuildDir(), cacheDir, runner.depsDir, depsIndex), os.Stdout); err != nil {
 				return "", newDescriptiveError(err, buildpackapplifecycle.SupplyFailMsg)
 			}
 		}
 
-		if err := runner.run(exec.Command(path.Join(buildpackPath, "bin", "finalize"), runner.config.BuildDir(), cacheDir, runner.depsDir, depsSubDir), os.Stdout); err != nil {
+		if err := runner.run(exec.Command(path.Join(buildpackPath, "bin", "finalize"), runner.config.BuildDir(), cacheDir, runner.depsDir, depsIndex), os.Stdout); err != nil {
 			return "", newDescriptiveError(err, buildpackapplifecycle.FinalizeFailMsg)
 		}
 	} else {
 		// remove unused deps sub dir
-		if err := os.RemoveAll(filepath.Join(runner.depsDir, depsSubDir)); err != nil {
+		if err := os.RemoveAll(filepath.Join(runner.depsDir, depsIndex)); err != nil {
 			return "", newDescriptiveError(err, buildpackapplifecycle.CompileFailMsg)
 		}
 
@@ -395,7 +417,7 @@ func (runner *Runner) detect() (string, string, string, bool) {
 func (runner *Runner) readProcfile() (map[string]string, error) {
 	processes := map[string]string{}
 
-	procFile, err := ioutil.ReadFile(filepath.Join(runner.config.BuildDir(), "Procfile"))
+	procFile, err := os.Open(filepath.Join(runner.config.BuildDir(), "Procfile"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Procfiles are optional
@@ -404,8 +426,9 @@ func (runner *Runner) readProcfile() (map[string]string, error) {
 
 		return processes, err
 	}
+	defer procFile.Close()
 
-	err = yaml.Unmarshal(procFile, &processes)
+	err = candiedyaml.NewDecoder(procFile).Decode(&processes)
 	if err != nil {
 		// clobber yaml parsing  error
 		return processes, errors.New("invalid YAML")
@@ -426,9 +449,11 @@ func (runner *Runner) release(buildpackDir string, startCommands map[string]stri
 		return Release{}, err
 	}
 
+	decoder := candiedyaml.NewDecoder(output)
+
 	parsedRelease := Release{}
 
-	err = yaml.Unmarshal(output.Bytes(), &parsedRelease)
+	err = decoder.Decode(&parsedRelease)
 	if err != nil {
 		return Release{}, newDescriptiveError(err, "buildpack's release output invalid")
 	}

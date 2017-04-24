@@ -292,9 +292,11 @@ func (c *cachedDownloader) fetchCachedDirectory(logger lager.Logger, url *url.UR
 
 func (c *cachedDownloader) acquireLimiter(logger lager.Logger, cacheKey string, cancelChan <-chan struct{}) (chan struct{}, error) {
 	startTime := time.Now()
-	logger = logger.Session("acquire-rate-limiter")
+	logger = logger.Session("acquire-rate-limiter", lager.Data{"cache-key": cacheKey})
 	logger.Info("starting")
-	defer logger.Info("completed", lager.Data{"duration-ns": time.Now().Sub(startTime)})
+	defer func() {
+		logger.Info("completed", lager.Data{"duration-ns": time.Now().Sub(startTime)})
+	}()
 
 	for {
 		c.lock.Lock()
