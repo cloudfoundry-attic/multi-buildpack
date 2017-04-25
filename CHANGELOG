@@ -1,3 +1,13 @@
+v0.2.0 Apr 25, 2017
+====================
+
+* Use buildpackapplifecycle with multiple buildpack support
+
+  - the lifecycle implements the proposal described here:
+    https://docs.google.com/document/d/1QPdlJuPOwPkoeFIbaMZ8qPlEEeQNIlpJlDya-VL8VVU/edit
+
+  (https://www.pivotaltracker.com/story/show/142723241)
+
 v0.1.1 Jan 23, 2017
 ====================
 
