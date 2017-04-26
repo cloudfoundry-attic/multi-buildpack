@@ -5,8 +5,8 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 export BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
 
-GO_VERSION="1.7.5"
-GO_MD5="c9de5bb95790044de676301898e92a1b"
+GO_VERSION="1.8.1"
+GO_MD5="b05c0cbb28503d038a47d87a6b3b8e86"
 
 URL=https://buildpacks.cloudfoundry.org/dependencies/go/go${GO_VERSION}.linux-amd64-c9de5bb9.tar.gz
 
