@@ -81,6 +81,19 @@ func (_mr *_MockLoggerRecorder) BeginStep(arg0 interface{}, arg1 ...interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "BeginStep", _s...)
 }
 
+func (_m *MockLogger) Debug(format string, args ...interface{}) {
+	_s := []interface{}{format}
+	for _, _x := range args {
+		_s = append(_s, _x)
+	}
+	_m.ctrl.Call(_m, "Debug", _s...)
+}
+
+func (_mr *_MockLoggerRecorder) Debug(arg0 interface{}, arg1 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0}, arg1...)
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Debug", _s...)
+}
+
 func (_m *MockLogger) Protip(tip string, help_url string) {
 	_m.ctrl.Call(_m, "Protip", tip, help_url)
 }
