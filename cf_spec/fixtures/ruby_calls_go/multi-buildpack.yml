@@ -1,0 +1,3 @@
+buildpacks:
+  - https://github.com/cloudfoundry/go-buildpack#develop
+  - https://github.com/cloudfoundry/ruby-buildpack#develop
