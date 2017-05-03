@@ -1,3 +1,10 @@
+v0.2.1 May 03, 2017
+====================
+
+* Set environment variables such as depsDir using absolute path
+  (https://www.pivotaltracker.com/story/show/142852033)
+  (https://www.pivotaltracker.com/story/show/142852047)
+
 v0.2.0 Apr 25, 2017
 ====================
 
