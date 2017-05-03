@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "653cb0a54f541f5030b034dcf5325aeafdf70dfc",
+			"revision": "38c927b5b8938c54c3ec03bfaa01cbc35e60369b",
 			"branch": "multi",
 			"notests": true
 		},
@@ -31,7 +31,7 @@
 			"importpath": "code.cloudfoundry.org/bytefmt",
 			"repository": "https://github.com/cloudfoundry/bytefmt",
 			"vcs": "git",
-			"revision": "a75017a21993c80187c7fa4f3c1ec22ddd6a8cd5",
+			"revision": "f4415fafc5619dd75599a54a7c91fb3948ad58bd",
 			"branch": "master",
 			"notests": true
 		},
@@ -39,7 +39,7 @@
 			"importpath": "code.cloudfoundry.org/cacheddownloader",
 			"repository": "https://github.com/cloudfoundry/cacheddownloader",
 			"vcs": "git",
-			"revision": "11f84643f31e2ba139a7ae74c7b648782e5c275e",
+			"revision": "7736176ccb7f989d50da6ba4239667f42773e5bf",
 			"branch": "master",
 			"notests": true
 		},
@@ -55,7 +55,7 @@
 			"importpath": "github.com/Masterminds/semver",
 			"repository": "https://github.com/Masterminds/semver",
 			"vcs": "git",
-			"revision": "923f129261de8c3e45d529e39824061bd5edf9aa",
+			"revision": "abff1900528dbdaf6f3f5aa92c398be1eaf2a9f7",
 			"branch": "master",
 			"notests": true
 		},
@@ -95,7 +95,7 @@
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
+			"revision": "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8",
 			"branch": "master",
 			"path": "/proto",
 			"notests": true
@@ -104,7 +104,7 @@
 			"importpath": "github.com/golang/protobuf/ptypes/any",
 			"repository": "https://github.com/golang/protobuf",
 			"vcs": "git",
-			"revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
+			"revision": "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8",
 			"branch": "master",
 			"path": "ptypes/any",
 			"notests": true
@@ -113,7 +113,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "6adbc2648389a46e8ff0e96d07a07a9a9eb432de",
+			"revision": "83438ca4278f2f56757b9ab2cb15dd4f596d84e8",
 			"branch": "master",
 			"notests": true
 		},
@@ -121,7 +121,7 @@
 			"importpath": "github.com/onsi/gomega",
 			"repository": "https://github.com/onsi/gomega",
 			"vcs": "git",
-			"revision": "9b8c753e8dfb382618ba8fa19b4197b5dcb0434c",
+			"revision": "da367351331c75190afec7ed3a0c61e0016942ed",
 			"branch": "master",
 			"notests": true
 		},
@@ -129,7 +129,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "ea9bcade75cb975a0b9738936568ab388b845617",
+			"revision": "9ccfe848b9db8435a24c424abbc07a921adf1df5",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true

@@ -129,6 +129,8 @@ func (c *cachedDownloader) RecoverState(logger lager.Logger) error {
 		return err
 	}
 
+	defer file.Close()
+
 	if err == nil {
 		// parse the file only if it exists
 		err = json.NewDecoder(file).Decode(c.cache)
