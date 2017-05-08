@@ -63,7 +63,7 @@ var _ = Describe("Compile", func() {
 		}
 
 		compiler = &c.MultiCompiler{
-			Stager:     bps,
+			Stager:       bps,
 			Buildpacks:   buildpacks,
 			DownloadsDir: downloadsDir,
 			Runner:       mockRunner,
