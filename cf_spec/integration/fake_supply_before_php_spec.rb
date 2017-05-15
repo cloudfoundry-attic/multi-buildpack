@@ -2,7 +2,7 @@ $: << 'cf_spec'
 require 'yaml'
 require 'spec_helper'
 
-xdescribe 'running supply buildpacks before the php buildpack' do
+describe 'running supply buildpacks before the php buildpack' do
   let(:buildpack) { ENV.fetch('SHARED_HOST')=='true' ? 'multi_buildpack' : 'multi-test-buildpack' }
   let(:app) { Machete.deploy_app(app_name, buildpack: buildpack) }
   let(:browser) { Machete::Browser.new(app) }
