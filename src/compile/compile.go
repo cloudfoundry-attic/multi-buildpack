@@ -94,7 +94,7 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filepath.Join(profiledDir, "00000000_multi.sh"), []byte("mv .deps ../deps && DIR=$(dirname $HOME) && export DEPS_DIR=$DIR/deps\n"), 0755)
+	err = ioutil.WriteFile(filepath.Join(profiledDir, "00000000_multi.sh"), []byte("if [ -d .deps ]; then mv .deps ../deps; fi && DIR=$(dirname $HOME) && export DEPS_DIR=$DIR/deps\n"), 0755)
 
 	if err != nil {
 		c.Stager.Log.Error("Unable create .profile.d/00000000_multi.sh script: %s", err.Error())
