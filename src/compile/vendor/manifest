@@ -23,8 +23,8 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "38c927b5b8938c54c3ec03bfaa01cbc35e60369b",
-			"branch": "multi",
+			"revision": "554a15cdf273fa9781b0e4d5379e72886ca280f6",
+			"branch": "master",
 			"notests": true
 		},
 		{
@@ -52,6 +52,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "code.cloudfoundry.org/systemcerts",
+			"repository": "https://github.com/cloudfoundry/systemcerts",
+			"vcs": "git",
+			"revision": "48f99f18ec4515f90316860290bccd8f80edaa63",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/Masterminds/semver",
 			"repository": "https://github.com/Masterminds/semver",
 			"vcs": "git",
@@ -72,14 +80,6 @@
 			"repository": "https://github.com/cloudfoundry/libbuildpack",
 			"vcs": "git",
 			"revision": "678baf1835d3bce31263b9a5feac87378960171d",
-			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/cloudfoundry/systemcerts",
-			"repository": "https://github.com/cloudfoundry/systemcerts",
-			"vcs": "git",
-			"revision": "48f99f18ec4515f90316860290bccd8f80edaa63",
 			"branch": "master",
 			"notests": true
 		},
@@ -129,7 +129,7 @@
 			"importpath": "golang.org/x/net/html",
 			"repository": "https://go.googlesource.com/net",
 			"vcs": "git",
-			"revision": "5961165da77ad3a2abf3a77ea904c13a76b0b073",
+			"revision": "1a26cf06691746ee35aa7113c9b37289afc7ea28",
 			"branch": "master",
 			"path": "html",
 			"notests": true
