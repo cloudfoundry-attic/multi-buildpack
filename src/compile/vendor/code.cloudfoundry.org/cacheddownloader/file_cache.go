@@ -378,7 +378,7 @@ func (c *FileCache) makeRoom(logger lager.Logger, size int64, excludedCacheKey s
 	usedSpace := c.usedSpace(logger)
 	for c.maxSizeInBytes < usedSpace+size {
 		var oldestEntry *FileCacheEntry
-		oldestAccessTime, oldestCacheKey := time.Now(), ""
+		oldestAccessTime, oldestCacheKey := maxTime(), ""
 		for ck, f := range c.Entries {
 			if f.Access.Before(oldestAccessTime) && ck != excludedCacheKey && !f.inUse() {
 				oldestAccessTime = f.Access
@@ -410,4 +410,9 @@ func (c *FileCache) usedSpace(logger lager.Logger) int64 {
 func extractTarToDirectory(sourcePath, destinationDir string) error {
 	e := extractor.NewTar()
 	return e.Extract(sourcePath, destinationDir)
+}
+
+func maxTime() time.Time {
+	unixToInternal := int64((1969*365 + 1969/4 - 1969/100 + 1969/400) * 24 * 60 * 60)
+	return time.Unix(1<<63-1-unixToInternal, 999999999)
 }

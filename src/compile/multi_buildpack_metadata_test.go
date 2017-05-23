@@ -1,34 +1,33 @@
 package main_test
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	c "compile"
 
-	"github.com/golang/mock/gomock"
+	"github.com/cloudfoundry/libbuildpack"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
-
-//go:generate mockgen -source=vendor/github.com/cloudfoundry/libbuildpack/logger.go --destination=mocks_logger_test.go --package=main_test
 
 var _ = Describe("GetBuildpacks", func() {
 	var (
 		buildpacks []string
 		buildDir   string
 		err        error
-		mockCtrl   *gomock.Controller
-		logger     *MockLogger
+		buffer     *bytes.Buffer
+		logger     *libbuildpack.Logger
 	)
 
 	BeforeEach(func() {
 		buildDir, err = ioutil.TempDir("", "build")
 		Expect(err).To(BeNil())
 
-		mockCtrl = gomock.NewController(GinkgoT())
-		logger = NewMockLogger(mockCtrl)
+		buffer = new(bytes.Buffer)
+		logger = libbuildpack.NewLogger(buffer)
 	})
 
 	AfterEach(func() {
@@ -59,29 +58,25 @@ var _ = Describe("GetBuildpacks", func() {
 		})
 
 		It("returns an error", func() {
-			logger.EXPECT().Error(gomock.Any()).AnyTimes()
-
 			_, err := c.GetBuildpacks(buildDir, logger)
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("informs the user", func() {
-			logger.EXPECT().Error("The multi-buildpack.yml file is malformed.")
 			c.GetBuildpacks(buildDir, logger)
+			Expect(buffer.String()).To(ContainSubstring("The multi-buildpack.yml file is malformed."))
 		})
 	})
 
 	Context("multi-buildpack.yml does not exist", func() {
 		It("returns an error", func() {
-			logger.EXPECT().Error(gomock.Any()).AnyTimes()
-
 			_, err := c.GetBuildpacks(buildDir, logger)
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("informs the user", func() {
-			logger.EXPECT().Error("A multi-buildpack.yml file must be provided at your app root to use this buildpack.")
 			c.GetBuildpacks(buildDir, logger)
+			Expect(buffer.String()).To(ContainSubstring("A multi-buildpack.yml file must be provided at your app root to use this buildpack."))
 		})
 	})
 })

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"code.cloudfoundry.org/buildpackapplifecycle"
 	"code.cloudfoundry.org/buildpackapplifecycle/buildpackrunner"
@@ -18,27 +19,41 @@ type Runner interface {
 
 // MultiCompiler a struct to compile this buildpack
 type MultiCompiler struct {
-	Stager       *libbuildpack.Stager
+	BuildDir     string
+	CacheDir     string
+	Log          *libbuildpack.Logger
 	Buildpacks   []string
 	DownloadsDir string
 	Runner       Runner
 }
 
 func main() {
-	logger := libbuildpack.NewLogger()
+	logger := libbuildpack.NewLogger(os.Stdout)
 
-	stager, err := libbuildpack.NewStager(os.Args[1:], logger)
+	buildpackDir, err := libbuildpack.GetBuildpackDir()
+	if err != nil {
+		logger.Error("Unable to determine buildpack directory: %s", err.Error())
+		os.Exit(8)
+	}
+
+	manifest, err := libbuildpack.NewManifest(buildpackDir, logger, time.Now())
+	if err != nil {
+		logger.Error("Unable to load buildpack manifest: %s", err.Error())
+		os.Exit(9)
+	}
+
+	stager := libbuildpack.NewStager(os.Args[1:], logger, manifest)
 	err = stager.CheckBuildpackValid()
 	if err != nil {
 		os.Exit(10)
 	}
 
-	buildpacks, err := GetBuildpacks(stager.BuildDir, logger)
+	buildpacks, err := GetBuildpacks(stager.BuildDir(), logger)
 	if err != nil {
 		os.Exit(11)
 	}
 
-	mc, err := NewMultiCompiler(stager, buildpacks)
+	mc, err := NewMultiCompiler(stager.BuildDir(), stager.CacheDir(), buildpacks, logger)
 	if err != nil {
 		os.Exit(12)
 	}
@@ -52,15 +67,17 @@ func main() {
 }
 
 // NewMultiCompiler creates a new MultiCompiler
-func NewMultiCompiler(compiler *libbuildpack.Stager, buildpacks []string) (*MultiCompiler, error) {
+func NewMultiCompiler(buildDir, cacheDir string, buildpacks []string, logger *libbuildpack.Logger) (*MultiCompiler, error) {
 	downloadsDir, err := ioutil.TempDir("", "downloads")
 	if err != nil {
 		return nil, err
 	}
 	mc := &MultiCompiler{
-		Stager:       compiler,
+		BuildDir:     buildDir,
+		CacheDir:     cacheDir,
 		Buildpacks:   buildpacks,
 		DownloadsDir: downloadsDir,
+		Log:          logger,
 		Runner:       nil,
 	}
 	return mc, nil
@@ -70,7 +87,7 @@ func NewMultiCompiler(compiler *libbuildpack.Stager, buildpacks []string) (*Mult
 func (c *MultiCompiler) Compile() error {
 	config, err := c.NewLifecycleBuilderConfig()
 	if err != nil {
-		c.Stager.Log.Error("Unable to set up runner config: %s", err.Error())
+		c.Log.Error("Unable to set up runner config: %s", err.Error())
 		return err
 	}
 
@@ -78,17 +95,17 @@ func (c *MultiCompiler) Compile() error {
 
 	stagingInfoFile, err := c.RunBuildpacks()
 	if err != nil {
-		c.Stager.Log.Error("Unable to run all buildpacks: %s", err.Error())
+		c.Log.Error("Unable to run all buildpacks: %s", err.Error())
 		return err
 	}
 
 	err = WriteStartCommand(stagingInfoFile, "/tmp/multi-buildpack-release.yml")
 	if err != nil {
-		c.Stager.Log.Error("Unable to write start command: %s", err.Error())
+		c.Log.Error("Unable to write start command: %s", err.Error())
 		return err
 	}
 
-	profiledDir := filepath.Join(c.Stager.BuildDir, ".profile.d")
+	profiledDir := filepath.Join(c.BuildDir, ".profile.d")
 	err = os.MkdirAll(profiledDir, 0755)
 	if err != nil {
 		return err
@@ -97,13 +114,13 @@ func (c *MultiCompiler) Compile() error {
 	err = ioutil.WriteFile(filepath.Join(profiledDir, "00000000_multi.sh"), []byte("if [ -d .deps ]; then mv .deps ../deps; fi && DIR=$(dirname $HOME) && export DEPS_DIR=$DIR/deps\n"), 0755)
 
 	if err != nil {
-		c.Stager.Log.Error("Unable create .profile.d/00000000_multi.sh script: %s", err.Error())
+		c.Log.Error("Unable create .profile.d/00000000_multi.sh script: %s", err.Error())
 		return err
 	}
 
 	err = c.CleanupStagingArea()
 	if err != nil {
-		c.Stager.Log.Warning("Unable to clean staging container: %s", err.Error())
+		c.Log.Warning("Unable to clean staging container: %s", err.Error())
 		return err
 	}
 
@@ -121,11 +138,11 @@ func (c *MultiCompiler) NewLifecycleBuilderConfig() (buildpackapplifecycle.Lifec
 	if err := cfg.Set("outputDroplet", "/dev/null"); err != nil {
 		return cfg, err
 	}
-	if err := cfg.Set("buildDir", c.Stager.BuildDir); err != nil {
+	if err := cfg.Set("buildDir", c.BuildDir); err != nil {
 		return cfg, err
 	}
 
-	if err := cfg.Set("buildArtifactsCacheDir", c.Stager.CacheDir); err != nil {
+	if err := cfg.Set("buildArtifactsCacheDir", c.CacheDir); err != nil {
 		return cfg, err
 	}
 
@@ -142,8 +159,8 @@ func (c *MultiCompiler) RunBuildpacks() (string, error) {
 		return "", nil
 	}
 
-	c.Stager.Log.BeginStep("Running buildpacks:")
-	c.Stager.Log.Info(strings.Join(c.Buildpacks, "\n"))
+	c.Log.BeginStep("Running buildpacks:")
+	c.Log.Info(strings.Join(c.Buildpacks, "\n"))
 
 	return c.Runner.Run()
 }
@@ -151,7 +168,7 @@ func (c *MultiCompiler) RunBuildpacks() (string, error) {
 // CleanupStagingArea moves prepares the staging container to be tarred by the old lifecycle
 func (c *MultiCompiler) CleanupStagingArea() error {
 	if err := os.RemoveAll(c.DownloadsDir); err != nil {
-		c.Stager.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
+		c.Log.Warning("Unable to remove downloaded buildpacks: %s", err.Error())
 	}
 
 	depsDirs, err := filepath.Glob(filepath.Join(os.TempDir(), "contents*", "deps"))
@@ -162,5 +179,5 @@ func (c *MultiCompiler) CleanupStagingArea() error {
 	if len(depsDirs) != 1 {
 		return fmt.Errorf("found %d deps dirs, expected 1", len(depsDirs))
 	}
-	return os.Rename(depsDirs[0], filepath.Join(c.Stager.BuildDir, ".deps"))
+	return os.Rename(depsDirs[0], filepath.Join(c.BuildDir, ".deps"))
 }

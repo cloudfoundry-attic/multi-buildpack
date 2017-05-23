@@ -13,7 +13,7 @@ type MultiBuildpackMetadata struct {
 }
 
 // NewConfig returns parsed config object
-func GetBuildpacks(dir string, logger libbuildpack.Logger) ([]string, error) {
+func GetBuildpacks(dir string, logger *libbuildpack.Logger) ([]string, error) {
 	metadata := &MultiBuildpackMetadata{}
 
 	err := libbuildpack.NewYAML().Load(filepath.Join(dir, "multi-buildpack.yml"), metadata)

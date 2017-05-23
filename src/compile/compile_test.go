@@ -8,14 +8,13 @@ import (
 
 	"bytes"
 
-	bp "github.com/cloudfoundry/libbuildpack"
+	"github.com/cloudfoundry/libbuildpack"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-//go:generate mockgen -source=vendor/github.com/cloudfoundry/libbuildpack/manifest.go --destination=mocks_manifest_test.go --package=main_test --imports=.=github.com/cloudfoundry/libbuildpack
-//go:generate mockgen -source=compile.go --destination=mocks_runner_test.go --package=main_test
+//go:generate mockgen -source=compile.go --destination=mocks_test.go --package=main_test
 
 var _ = Describe("Compile", func() {
 	var (
@@ -26,11 +25,10 @@ var _ = Describe("Compile", func() {
 		buildpacks   []string
 		downloadsDir string
 		mockCtrl     *gomock.Controller
-		mockManifest *MockManifest
 		mockRunner   *MockRunner
 		buffer       *bytes.Buffer
 
-		logger bp.Logger
+		logger *libbuildpack.Logger
 	)
 
 	BeforeEach(func() {
@@ -44,26 +42,19 @@ var _ = Describe("Compile", func() {
 		Expect(err).To(BeNil())
 
 		buffer = new(bytes.Buffer)
-		logger = bp.NewLogger()
-		logger.SetOutput(buffer)
+		logger = libbuildpack.NewLogger(buffer)
 
 		buildpacks = []string{}
 
 		mockCtrl = gomock.NewController(GinkgoT())
-		mockManifest = NewMockManifest(mockCtrl)
 		mockRunner = NewMockRunner(mockCtrl)
 	})
 
 	JustBeforeEach(func() {
-		bps := &bp.Stager{
-			BuildDir: buildDir,
-			CacheDir: cacheDir,
-			Manifest: mockManifest,
-			Log:      logger,
-		}
-
 		compiler = &c.MultiCompiler{
-			Stager:       bps,
+			BuildDir:     buildDir,
+			CacheDir:     cacheDir,
+			Log:          logger,
 			Buildpacks:   buildpacks,
 			DownloadsDir: downloadsDir,
 			Runner:       mockRunner,
