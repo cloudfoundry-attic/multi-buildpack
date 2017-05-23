@@ -150,21 +150,52 @@ var _ = Describe("Compile", func() {
 
 		Context("there are no errors", func() {
 			It("deletes the directory containing the downloaded buildpacks", func() {
-				err := compiler.CleanupStagingArea()
-				Expect(err).To(BeNil())
-
+				Expect(compiler.CleanupStagingArea()).To(Succeed())
 				Expect(downloadsDir).NotTo(BeADirectory())
 			})
 
 			It("it moves /tmp/<contents>/deps to <buildDir>/.deps", func() {
 				buildDepsDir := filepath.Join(buildDir, ".deps")
-
-				err := compiler.CleanupStagingArea()
-				Expect(err).To(BeNil())
+				Expect(compiler.CleanupStagingArea()).To(Succeed())
 
 				Expect(buildDepsDir).To(BeADirectory())
 				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep1.txt"))).To(Equal([]byte("x1")))
 				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep2.txt"))).To(Equal([]byte("x2")))
+			})
+		})
+
+		Context("there is an existing deps dir", func() {
+			var (
+				oldContentsDir string
+				oldDepsDir     string
+			)
+
+			JustBeforeEach(func() {
+				oldContentsDir, err = ioutil.TempDir("", "contents")
+				Expect(err).To(BeNil())
+
+				oldDepsDir = filepath.Join(oldContentsDir, "deps")
+				Expect(os.MkdirAll(oldDepsDir, 0755)).To(Succeed())
+
+				compiler.ExistingDepsDirs = []string{oldDepsDir}
+			})
+
+			AfterEach(func() {
+				Expect(os.RemoveAll(oldContentsDir)).To(Succeed())
+			})
+
+			It("it moves /tmp/<contents>/deps to <buildDir>/.deps", func() {
+				buildDepsDir := filepath.Join(buildDir, ".deps")
+				Expect(compiler.CleanupStagingArea()).To(Succeed())
+
+				Expect(buildDepsDir).To(BeADirectory())
+				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep1.txt"))).To(Equal([]byte("x1")))
+				Expect(ioutil.ReadFile(filepath.Join(buildDepsDir, "dep2.txt"))).To(Equal([]byte("x2")))
+			})
+
+			It("it does not move the old deps dir", func() {
+				Expect(compiler.CleanupStagingArea()).To(Succeed())
+				Expect(oldDepsDir).To(BeADirectory())
 			})
 		})
 	})

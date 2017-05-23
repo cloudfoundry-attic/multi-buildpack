@@ -19,12 +19,13 @@ type Runner interface {
 
 // MultiCompiler a struct to compile this buildpack
 type MultiCompiler struct {
-	BuildDir     string
-	CacheDir     string
-	Log          *libbuildpack.Logger
-	Buildpacks   []string
-	DownloadsDir string
-	Runner       Runner
+	BuildDir         string
+	CacheDir         string
+	Log              *libbuildpack.Logger
+	Buildpacks       []string
+	DownloadsDir     string
+	Runner           Runner
+	ExistingDepsDirs []string
 }
 
 func main() {
@@ -73,12 +74,13 @@ func NewMultiCompiler(buildDir, cacheDir string, buildpacks []string, logger *li
 		return nil, err
 	}
 	mc := &MultiCompiler{
-		BuildDir:     buildDir,
-		CacheDir:     cacheDir,
-		Buildpacks:   buildpacks,
-		DownloadsDir: downloadsDir,
-		Log:          logger,
-		Runner:       nil,
+		BuildDir:         buildDir,
+		CacheDir:         cacheDir,
+		Buildpacks:       buildpacks,
+		DownloadsDir:     downloadsDir,
+		Log:              logger,
+		Runner:           nil,
+		ExistingDepsDirs: []string{},
 	}
 	return mc, nil
 }
@@ -88,6 +90,12 @@ func (c *MultiCompiler) Compile() error {
 	config, err := c.NewLifecycleBuilderConfig()
 	if err != nil {
 		c.Log.Error("Unable to set up runner config: %s", err.Error())
+		return err
+	}
+
+	c.ExistingDepsDirs, err = filepath.Glob(filepath.Join(os.TempDir(), "contents*", "deps"))
+	if err != nil {
+		c.Log.Error("Unable to locate directories: %s", err.Error())
 		return err
 	}
 
@@ -176,8 +184,26 @@ func (c *MultiCompiler) CleanupStagingArea() error {
 		return err
 	}
 
+	depsDirs = removeAll(depsDirs, c.ExistingDepsDirs)
+
 	if len(depsDirs) != 1 {
 		return fmt.Errorf("found %d deps dirs, expected 1", len(depsDirs))
 	}
 	return os.Rename(depsDirs[0], filepath.Join(c.BuildDir, ".deps"))
+}
+
+func removeAll(s []string, r []string) []string {
+	remove := func(s []string, r string) []string {
+		for i, v := range s {
+			if v == r {
+				return append(s[:i], s[i+1:]...)
+			}
+		}
+		return s
+	}
+
+	for _, v := range r {
+		s = remove(s, v)
+	}
+	return s
 }
