@@ -119,7 +119,19 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filepath.Join(profiledDir, "00000000_multi.sh"), []byte("if [ -d .deps ]; then mv .deps ../deps; fi && DIR=$(dirname $HOME) && export DEPS_DIR=$DIR/deps\n"), 0755)
+	profileScript := `
+	set -e
+
+	if [ -d .deps ]; then
+		mkdir -p ../deps
+		mv .deps/* ../deps/
+		rm -rf .deps
+	fi
+	DIR=$(dirname $HOME)
+	export DEPS_DIR=$DIR/deps
+	`
+
+	err = ioutil.WriteFile(filepath.Join(profiledDir, "00000000_multi.sh"), []byte(profileScript), 0755)
 
 	if err != nil {
 		c.Log.Error("Unable create .profile.d/00000000_multi.sh script: %s", err.Error())
