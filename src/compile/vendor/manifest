@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "556939b0ecef992a0bb58893031b686beebbb751",
+			"revision": "0ca56d7fca7380a47a9a5428aa7140a95c52aee6",
 			"branch": "master",
 			"notests": true
 		},
