@@ -1,3 +1,13 @@
+v0.2.3 Jun 15, 2017
+====================
+
+* Handle existing deps dirs
+  - buildpackapplifecycle will create deps dir, and thus multi-buildpack
+    previously could not distinguish them apart
+
+* Multi script checks if .deps exists before trying to move it.
+  (https://www.pivotaltracker.com/story/show/145472723)
+
 v0.2.2 May 10, 2017
 ====================
 
