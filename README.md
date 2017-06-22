@@ -49,7 +49,7 @@ Find our guidelines [here](./CONTRIBUTING.md).
 
 ### Help and Support
 
-Join the #buildpacks channel in our [Slack community] (http://slack.cloudfoundry.org/) if you need any further assistance.
+Join the #buildpacks channel in our [Slack community](http://slack.cloudfoundry.org/) if you need any further assistance.
 
 ### Reporting Issues
 
