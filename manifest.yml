@@ -1,6 +1,7 @@
 ---
 language: multi
 dependencies: []
+pre_package: scripts/build.sh
 exclude_files:
   - ".git/"
   - ".gitignore"
@@ -10,5 +11,10 @@ exclude_files:
   - src/
   - pkg/
   - multi_buildpack-*v*.zip
-
-pre_package: scripts/build.sh
+  - cf.Gemfile
+  - cf.Gemfile.lock
+  - .DS_Store
+  - .envrc
+  - .ruby-version
+  - scripts/
+  - scripts/build.sh
