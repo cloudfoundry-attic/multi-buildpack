@@ -1,3 +1,9 @@
+v0.2.4 Jul 10, 2017
+====================
+
+* Exclude unnecessary files from packaged buildpack
+  (https://www.pivotaltracker.com/story/show/143675083)
+
 v0.2.3 Jun 15, 2017
 ====================
 
