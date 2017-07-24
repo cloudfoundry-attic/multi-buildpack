@@ -5,6 +5,7 @@ package main_test
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockRunner is a mock of Runner interface
@@ -40,5 +41,5 @@ func (_m *MockRunner) Run() (string, error) {
 
 // Run indicates an expected call of Run
 func (_mr *MockRunnerMockRecorder) Run() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Run")
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Run", reflect.TypeOf((*MockRunner)(nil).Run))
 }

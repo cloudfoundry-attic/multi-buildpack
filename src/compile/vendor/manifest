@@ -23,7 +23,7 @@
 			"importpath": "code.cloudfoundry.org/buildpackapplifecycle",
 			"repository": "https://github.com/cloudfoundry/buildpackapplifecycle",
 			"vcs": "git",
-			"revision": "c788aa5ac6ea4087302e234144db3d10f5eedb4d",
+			"revision": "7a3d6283487c7af6981750b3b9eb85ee2e9b883d",
 			"branch": "master",
 			"notests": true
 		},
@@ -95,7 +95,7 @@
 			"importpath": "github.com/golang/mock",
 			"repository": "https://github.com/golang/mock",
 			"vcs": "git",
-			"revision": "dbe9dea30dbc5b4b6d54c9ecf9a3b8f9b8e6556c",
+			"revision": "13f360950a79f5864a972c786a10a50e44b69541",
 			"branch": "master",
 			"notests": true
 		},
@@ -121,7 +121,7 @@
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"vcs": "git",
-			"revision": "9eda700730cba42af70d53180f9dcce9266bc2bc",
+			"revision": "228e3a805a0579a328589d6810bc1edd03f2299f",
 			"branch": "master",
 			"notests": true
 		},
@@ -137,7 +137,7 @@
 			"importpath": "golang.org/x/net/html",
 			"repository": "https://go.googlesource.com/net",
 			"vcs": "git",
-			"revision": "02ac38e2528ff4adea90f184d71a3faa04b4b1b0",
+			"revision": "ab5485076ff3407ad2d02db054635913f017b0ed",
 			"branch": "master",
 			"path": "html",
 			"notests": true
@@ -146,7 +146,7 @@
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
-			"revision": "7a4fde3fda8ef580a89dbae8138c26041be14299",
+			"revision": "c4489faa6e5ab84c0ef40d6ee878f7a030281f0f",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true
@@ -227,7 +227,7 @@
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
 			"vcs": "git",
-			"revision": "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af",
+			"revision": "25c4ec802a7d637f88d584ab26798e94ad14c13b",
 			"branch": "v2",
 			"notests": true
 		}
