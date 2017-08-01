@@ -1,23 +1,34 @@
-$: << 'cf_spec'
-require 'yaml'
-require 'spec_helper'
+package integration_test
 
-describe 'running supply buildpacks before the binary buildpack' do
-  let(:buildpack) { ENV.fetch('SHARED_HOST')=='true' ? 'multi_buildpack' : 'multi-test-buildpack' }
-  let(:app) { Machete.deploy_app(app_name, buildpack: buildpack) }
-  let(:browser) { Machete::Browser.new(app) }
+import (
+	"path/filepath"
 
-  after { Machete::CF::DeleteApp.new.execute(app) }
+	"github.com/cloudfoundry/libbuildpack/cutlass"
 
-  context 'the app is pushed once' do
-    let (:app_name) { 'fake_supply_binary_app' }
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
 
-    it 'finds the supplied dependency in the runtime container' do
-      expect(app).to be_running
-      expect(app).to have_logged "SUPPLYING DOTNET"
+var _ = Describe("running supply buildpacks before the binary buildpack", func() {
+	var app *cutlass.App
+	AfterEach(func() {
+		if app != nil {
+			app.Destroy()
+		}
+		app = nil
+	})
 
-      browser.visit_path('/')
-      expect(browser).to have_body(/dotnet: 1.0.1/)
-    end
-  end
-end
+	Context("the app is pushed once", func() {
+		BeforeEach(func() {
+			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_binary_app"))
+		})
+
+		It("finds the supplied dependency in the runtime container", func() {
+			PushAppAndConfirm(app)
+
+			Expect(app.Stdout.String()).ToNot(ContainSubstring("SUPPLYING DOTNET"))
+
+			Expect(app.GetBody("/")).To(MatchRegex("dotnet: 1.0.1"))
+		})
+	})
+})
