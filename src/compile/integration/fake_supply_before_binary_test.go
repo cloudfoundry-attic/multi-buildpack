@@ -28,7 +28,7 @@ var _ = Describe("running supply buildpacks before the binary buildpack", func()
 
 			Expect(app.Stdout.String()).ToNot(ContainSubstring("SUPPLYING DOTNET"))
 
-			Expect(app.GetBody("/")).To(MatchRegex("dotnet: 1.0.1"))
+			Expect(app.GetBody("/")).To(MatchRegexp("dotnet: 1.0.1"))
 		})
 	})
 })
