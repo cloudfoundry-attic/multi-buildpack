@@ -2,19 +2,16 @@
 language: multi
 dependencies: []
 pre_package: scripts/build.sh
-exclude_files:
-  - ".git/"
-  - ".gitignore"
-  - ".gitmodules"
-  - cf_spec/
-  - log/
-  - src/
-  - pkg/
-  - multi_buildpack-*v*.zip
-  - cf.Gemfile
-  - cf.Gemfile.lock
-  - .DS_Store
-  - .envrc
-  - .ruby-version
-  - scripts/
-  - scripts/build.sh
+include_files:
+  - bin/compile
+  - bin/detect
+  - bin/release
+  - manifest.yml
+  - LICENSE
+  - NOTICE
+  - ISSUE_TEMPLATE
+  - CONTRIBUTING.md
+  - README.md
+  - VERSION
+  - CHANGELOG
+  - PULL_REQUEST_TEMPLATE
