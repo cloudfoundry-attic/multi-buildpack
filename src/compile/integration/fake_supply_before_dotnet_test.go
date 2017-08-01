@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = FDescribe("running supply buildpacks before the binary buildpack", func() {
+var _ = PDescribe("running supply buildpacks before the dotnet-core buildpack", func() {
 	var app *cutlass.App
 	AfterEach(func() {
 		if app != nil {
@@ -18,18 +18,18 @@ var _ = FDescribe("running supply buildpacks before the binary buildpack", func(
 		app = nil
 	})
 
-	Context("the app is pushed once", func() {
+	Context("the app is pushed", func() {
 		BeforeEach(func() {
-			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_binary_app"))
+			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_dotnet_app"))
 			app.Buildpack = "multi_buildpack"
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {
 			PushAppAndConfirm(app)
 
-			Expect(app.Stdout.String()).ToNot(ContainSubstring("SUPPLYING DOTNET"))
+			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING BOSH2"))
 
-			Expect(app.GetBody("/")).To(MatchRegexp("dotnet: 1.0.1"))
+			Expect(app.GetBody("/")).To(MatchRegexp("bosh2: version 2.0.1-74fad57"))
 		})
 	})
 })
