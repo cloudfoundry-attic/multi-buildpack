@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("running supply buildpacks before the binary buildpack", func() {
+var _ = Describe("running supply ruby buildpack before the go buildpack", func() {
 	var app *cutlass.App
 	AfterEach(func() {
 		if app != nil {
@@ -18,18 +18,19 @@ var _ = Describe("running supply buildpacks before the binary buildpack", func()
 		app = nil
 	})
 
-	Context("the app is pushed once", func() {
+	Context("the app is pushed", func() {
 		BeforeEach(func() {
-			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_binary_app"))
+			app = cutlass.New(filepath.Join(bpDir, "fixtures", "go_calls_nodejs"))
 			app.Buildpack = "multi_buildpack"
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {
 			PushAppAndConfirm(app)
 
-			Expect(app.Stdout.String()).ToNot(ContainSubstring("SUPPLYING DOTNET"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Multi Buildpack version"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Nodejs Buildpack version"))
 
-			Expect(app.GetBody("/")).To(MatchRegexp("dotnet: 1.0.1"))
+			Expect(app.GetBody("/")).To(MatchRegexp("INFO hello world"))
 		})
 	})
 })
