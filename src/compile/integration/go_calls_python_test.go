@@ -19,7 +19,7 @@ var _ = Describe("running supply python buildpack before the go buildpack", func
 	})
 
 	pushApp := func(fixture string) {
-		app = cutlass.New(filepath.Join(bpDir, "fixtures"))
+		app = cutlass.New(filepath.Join(bpDir, "fixtures", fixture))
 		app.Buildpack = "multi_buildpack"
 		PushAppAndConfirm(app)
 	}
