@@ -27,9 +27,8 @@ var _ = Describe("running supply buildpacks before the binary buildpack", func()
 		It("finds the supplied dependency in the runtime container", func() {
 			PushAppAndConfirm(app)
 
-			Expect(app.Stdout.String()).ToNot(ContainSubstring("SUPPLYING DOTNET"))
-
-			Expect(app.GetBody("/")).To(MatchRegexp("dotnet: 1.0.1"))
+			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING DOTNET"))
+			Expect(app.GetBody("/")).To(ContainSubstring("dotnet: 1.0.1"))
 		})
 	})
 })
