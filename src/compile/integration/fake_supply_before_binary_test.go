@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = FDescribe("running supply buildpacks before the binary buildpack", func() {
+var _ = Describe("running supply buildpacks before the binary buildpack", func() {
 	var app *cutlass.App
 	AfterEach(func() {
 		if app != nil {
