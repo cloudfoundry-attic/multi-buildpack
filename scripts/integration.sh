@@ -10,4 +10,5 @@ fi
 GINKGO_NODES=${GINKGO_NODES:-2}
 GINKGO_ATTEMPTS=${GINKGO_ATTEMPTS:-2}
 
-ginkgo -r --flakeAttempts=$GINKGO_ATTEMPTS -nodes $GINKGO_NODES
+cd src/compile/integration
+ginkgo --flakeAttempts=$GINKGO_ATTEMPTS -nodes $GINKGO_NODES
