@@ -72,7 +72,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			Language string `yaml:"language"`
 		}
 		Expect(libbuildpack.NewYAML().Load(filepath.Join(bpDir, "manifest.yml"), &manifest)).To(Succeed())
-		Expect(cutlass.UpdateBuildpack(manifest.Language, file)).To(Succeed())
+		Expect(cutlass.CreateOrUpdateBuildpack(manifest.Language, file)).To(Succeed())
 
 		os.Remove(file)
 	}

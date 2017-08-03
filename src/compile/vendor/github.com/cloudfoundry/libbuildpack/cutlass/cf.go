@@ -94,6 +94,19 @@ func UpdateBuildpack(language, file string) error {
 	return nil
 }
 
+func createBuildpack(language, file string) error {
+	command := exec.Command("cf", "create-buildpack", fmt.Sprintf("%s_buildpack", language), file, "100", "--enable")
+	if _, err := command.CombinedOutput(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CreateOrUpdateBuildpack(language, file string) error {
+	createBuildpack(language, file)
+	return UpdateBuildpack(language, file)
+}
+
 func (a *App) ConfirmBuildpack(version string) error {
 	if !strings.Contains(a.Stdout.String(), fmt.Sprintf("Buildpack version %s", version)) {
 		var versionLine string
