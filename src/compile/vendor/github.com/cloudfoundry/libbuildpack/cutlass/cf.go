@@ -50,7 +50,7 @@ type App struct {
 
 func New(fixture string) *App {
 	return &App{
-		Name:      filepath.Base(fixture) + "-" + randStringRunes(20),
+		Name:      filepath.Base(fixture) + "-" + RandStringRunes(20),
 		Path:      fixture,
 		Buildpack: "",
 		appGUID:   "",
@@ -301,7 +301,7 @@ func (a *App) Destroy() error {
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 
-func randStringRunes(n int) string {
+func RandStringRunes(n int) string {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
