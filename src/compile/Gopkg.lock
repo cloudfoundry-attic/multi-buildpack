@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [".","buildpackrunner"]
-  revision = "9e435ad60ae013dfefab323245b534bdca78dd8c"
+  revision = "4b89532a3b38d74ede580258b4bd197da5cd5a51"
 
 [[projects]]
   branch = "master"
@@ -53,7 +53,7 @@
   branch = "master"
   name = "github.com/cloudfoundry/libbuildpack"
   packages = [".","cutlass","packager"]
-  revision = "724e9ae35449660b15cc772add9164fe9103a3d1"
+  revision = "8d2a6ebb192d5a0fa11fa9256d921e465ff57a01"
 
 [[projects]]
   name = "github.com/elazarl/goproxy"
@@ -100,7 +100,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "0f826bdd13b500be0f1d4004938ad978fcc6031e"
+  revision = "d6c3f2be455466eedffcfc91793e2c808b7a7410"
 
 [[projects]]
   branch = "master"
