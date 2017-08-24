@@ -53,7 +53,7 @@
   branch = "master"
   name = "github.com/cloudfoundry/libbuildpack"
   packages = [".","cutlass","packager"]
-  revision = "c535d005dc648d3d8537e929a80191df4143a6c1"
+  revision = "7c44a8720c6a8a06bf3095bd37402bf9efa00552"
 
 [[projects]]
   name = "github.com/elazarl/goproxy"
