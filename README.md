@@ -2,7 +2,7 @@
 
 [![CF Slack](https://www.google.com/s2/favicons?domain=www.slack.com) Join us on Slack](https://cloudfoundry.slack.com/messages/buildpacks/)
 
-This buildpack allows you to run multiple buildpacks in a single staging container.
+The multi-buildpack buildpack will run `bin/compile` and `bin/release` scripts for each specified buildpack, allowing you to run multiple buildpacks in a single staging container.
 
 ## Usage
 
@@ -18,11 +18,9 @@ buildpacks:
 
 - The multi-buildpack will download + run all the buildpacks in this list in the specified order.
 
-- It will use the app start command given by the last buildpack run.
+- It will use the app start command given by the final buildpack (the last buildpack in your `multi-buildpack.yml`).
 
-## Details
-
-- This will not work with system buildpacks. Ex. the following `multi-buildpack.yml` file will not work:
+- The multi-buildpack buildpack will not work with system buildpacks. You must use urls as shown above. Ex. the following `multi-buildpack.yml` file will **not** work:
 
 ```yaml
 buildpacks:
@@ -30,18 +28,32 @@ buildpacks:
   - go_buildpack
 ```
 
-- The multi-buildpack will run the `bin/compile` and `bin/release` scripts for each specified buildpack.
-
 ### Testing
-Buildpacks use the [Machete](https://github.com/cloudfoundry/machete) framework for running integration tests.
 
-To test a buildpack, run the following command from the buildpack's directory:
+Buildpacks use the [Cutlass](https://github.com/cloudfoundry/libbuildpack/cutlass) framework for running integration tests.
 
-```
-BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-build
-```
+To test this buildpack, run the following command from the buildpack's directory:
 
-More options can be found on Machete's [Github page.](https://github.com/cloudfoundry/machete)
+1. Source the .envrc file in the buildpack directory.
+
+   ```bash
+   source .envrc
+   ```
+   To simplify the process in the future, install [direnv](https://direnv.net/) which will automatically source .envrc when you change directories.
+
+1. Run unit tests
+
+    ```bash
+    ./scripts/unit.sh
+    ```
+
+1. Run integration tests
+
+    ```bash
+    ./scripts/integration.sh
+    ```
+
+More information can be found on Github [cutlass](https://github.com/cloudfoundry/libbuildpack/cutlass).
 
 ### Contributing
 
