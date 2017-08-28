@@ -28,7 +28,7 @@ var _ = Describe("running supply ruby buildpack before the go buildpack", func()
 			PushAppAndConfirm(app)
 
 			Expect(app.Stdout.String()).To(ContainSubstring("Multi Buildpack version"))
-			Expect(app.Stdout.String()).To(ContainSubstring("Using Ruby version"))
+			Expect(app.Stdout.String()).To(MatchRegexp("Installing ruby \\d+\\.\\d+\\.\\d+"))
 			Expect(app.Stdout.String()).To(ContainSubstring("Go Buildpack version"))
 
 			Expect(app.GetBody("/")).To(MatchRegexp("Bundler version \\d+\\.\\d+\\.\\d+"))
