@@ -37,7 +37,7 @@ var _ = Describe("running supply buildpacks before the ruby buildpack", func() {
 			app.Buildpack = "multi-unpackaged-buildpack-" + cutlass.RandStringRunes(20)
 
 			buildpackFile = fmt.Sprintf("/tmp/%s.zip", app.Buildpack)
-			runCmd("zip", "-r", buildpackFile, "bin/", "src/", "manifest.yml", "VERSION")
+			runCmd("zip", "-r", buildpackFile, "bin/", "src/", "scripts/", "manifest.yml", "VERSION")
 
 			runCmd("cf", "create-buildpack", app.Buildpack, buildpackFile, "100", "--enable")
 		})
