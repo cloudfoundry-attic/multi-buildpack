@@ -34,16 +34,16 @@ var _ = Describe("running supply buildpacks before the ruby buildpack", func() {
 		var buildpackFile string
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_ruby_app"))
-			app.Buildpack = "multi-unpackaged-buildpack-" + cutlass.RandStringRunes(20)
+			app.Buildpacks = []string{"multi-unpackaged-buildpack-" + cutlass.RandStringRunes(20)}
 
-			buildpackFile = fmt.Sprintf("/tmp/%s.zip", app.Buildpack)
+			buildpackFile = fmt.Sprintf("/tmp/%s.zip", app.Buildpacks[0])
 			runCmd("zip", "-r", buildpackFile, "bin/", "src/", "scripts/", "manifest.yml", "VERSION")
 
-			runCmd("cf", "create-buildpack", app.Buildpack, buildpackFile, "100", "--enable")
+			runCmd("cf", "create-buildpack", app.Buildpacks[0], buildpackFile, "100", "--enable")
 		})
 		AfterEach(func() {
 			os.Remove(buildpackFile)
-			runCmd("cf", "delete-buildpack", "-f", app.Buildpack)
+			runCmd("cf", "delete-buildpack", "-f", app.Buildpacks[0])
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {

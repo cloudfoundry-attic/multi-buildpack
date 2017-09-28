@@ -24,7 +24,7 @@ var _ = Describe("running supply buildpacks before the ruby buildpack", func() {
 	Context("the app is pushed once", func() {
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_ruby_app"))
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {
@@ -42,7 +42,7 @@ var _ = Describe("running supply buildpacks before the ruby buildpack", func() {
 			tmpDir, err = cutlass.CopyFixture(filepath.Join(bpDir, "fixtures", "test_cache_ruby_app"))
 			Expect(err).To(BeNil())
 			app = cutlass.New(tmpDir)
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 
 			randomRunes = cutlass.RandStringRunes(32)
 			Expect(ioutil.WriteFile(filepath.Join(tmpDir, "RANDOM_NUMBER"), []byte(randomRunes), 0644)).To(Succeed())

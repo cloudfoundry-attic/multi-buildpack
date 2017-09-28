@@ -21,7 +21,7 @@ var _ = Describe("running supply ruby buildpack before the go buildpack", func()
 	Context("the app is pushed", func() {
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "go_calls_nodejs"))
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {

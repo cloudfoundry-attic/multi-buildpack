@@ -21,7 +21,7 @@ var _ = Describe("running supply buildpacks before the binary buildpack", func()
 	Context("the app is pushed once", func() {
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_binary_app"))
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {

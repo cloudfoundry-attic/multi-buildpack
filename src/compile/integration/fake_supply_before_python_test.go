@@ -23,7 +23,7 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 	Context("a simple app is pushed once", func() {
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "fake_supply_python_app"))
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 
 		It("finds the supplied dependency in the runtime container", func() {
@@ -40,7 +40,7 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 			tmpDir, err = cutlass.CopyFixture(filepath.Join(bpDir, "fixtures", "flask_git_req"))
 			Expect(err).To(BeNil())
 			app = cutlass.New(tmpDir)
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 		AfterEach(func() { os.RemoveAll(tmpDir) })
 
@@ -69,7 +69,7 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 	Context("the app uses miniconda", func() {
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "miniconda_python_3"))
-			app.Buildpack = "multi_buildpack"
+			app.Buildpacks = []string{"multi_buildpack"}
 		})
 
 		It("uses miniconda", func() {
