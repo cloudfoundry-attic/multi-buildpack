@@ -28,7 +28,7 @@ var _ = Describe("running supply python buildpack before the go buildpack", func
 		pushApp("go_calls_python")
 
 		Expect(app.Stdout.String()).To(ContainSubstring("Multi Buildpack version"))
-		Expect(app.Stdout.String()).To(ContainSubstring("Installing python-"))
+		Expect(app.Stdout.String()).To(ContainSubstring("Installing python"))
 
 		Expect(app.GetBody("/")).To(ContainSubstring(`[{"hello":"world"}]`))
 	})
