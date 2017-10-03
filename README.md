@@ -2,7 +2,7 @@
 
 [![CF Slack](https://www.google.com/s2/favicons?domain=www.slack.com) Join us on Slack](https://cloudfoundry.slack.com/messages/buildpacks/)
 
-The multi-buildpack buildpack will run `bin/compile` and `bin/release` scripts for each specified buildpack, allowing you to run multiple buildpacks in a single staging container.
+The multi-buildpack buildpack provides older Cloud Foundry deployments with the multi-buildpack support that is available in Cloud Foundry's CAPI v3 API. See [Understanding Buildpacks](https://docs.cloudfoundry.org/buildpacks/understand-buildpacks.html) for more info.
 
 ## Usage
 
@@ -20,7 +20,7 @@ buildpacks:
 
 - It will use the app start command given by the final buildpack (the last buildpack in your `multi-buildpack.yml`).
 
-- The multi-buildpack buildpack will not work with system buildpacks. You must use urls as shown above. Ex. the following `multi-buildpack.yml` file will **not** work:
+- The multi-buildpack buildpack will not work with system buildpacks. You must use URLs as shown above. Ex. the following `multi-buildpack.yml` file will **not** work:
 
 ```yaml
 buildpacks:
@@ -73,5 +73,4 @@ The project backlog is on [Pivotal Tracker](https://www.pivotaltracker.com/proje
 
 ## Disclaimer
 
-This buildpack is intended as a proof-of-concept to generate user feedback for first class multi-buildpack support.
-It is not intended for production usage.
+This buildpack is experimental and not yet intended for production use.
