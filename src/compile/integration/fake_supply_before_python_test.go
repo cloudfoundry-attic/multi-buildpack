@@ -70,6 +70,8 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 		BeforeEach(func() {
 			app = cutlass.New(filepath.Join(bpDir, "fixtures", "miniconda_python_3"))
 			app.Buildpacks = []string{"multi_buildpack"}
+			app.Memory = "1GB"
+			app.Disk = "2GB"
 		})
 
 		It("uses miniconda", func() {
