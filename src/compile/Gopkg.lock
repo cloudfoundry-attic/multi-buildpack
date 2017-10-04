@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [".","buildpackrunner"]
-  revision = "6e91597411d646e4e212267d3aa9fbbdddb35e6e"
+  revision = "ec6d3f64e7c4bf50af5e3e4e85eb331b519b4802"
 
 [[projects]]
   branch = "master"
@@ -64,7 +64,7 @@
   branch = "master"
   name = "github.com/golang/mock"
   packages = ["gomock"]
-  revision = "2b473a1a899b0c9967501477ec03c71c32550cbe"
+  revision = "4887ba10eac80f57bfb3de234db4ac970d786511"
 
 [[projects]]
   branch = "master"
@@ -88,13 +88,13 @@
   branch = "master"
   name = "github.com/tidwall/match"
   packages = ["."]
-  revision = "173748da739a410c5b0b813b956f89ff94730b4c"
+  revision = "1731857f09b1f38450e2c12409748407822dc6be"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["html","html/atom","html/charset"]
-  revision = "0a9397675ba34b2845f758fe3cd68828369c6517"
+  revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
 
 [[projects]]
   branch = "master"
