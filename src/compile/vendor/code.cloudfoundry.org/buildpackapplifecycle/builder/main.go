@@ -2,10 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"code.cloudfoundry.org/buildpackapplifecycle"
 	"code.cloudfoundry.org/buildpackapplifecycle/buildpackrunner"
+	"code.cloudfoundry.org/buildpackapplifecycle/credhub"
+	"code.cloudfoundry.org/buildpackapplifecycle/databaseuri"
+	"code.cloudfoundry.org/buildpackapplifecycle/platformoptions"
 )
 
 func main() {
@@ -19,6 +23,27 @@ func main() {
 	if err := config.Validate(); err != nil {
 		println(err.Error())
 		usage()
+	}
+
+	if platformOptions, err := platformoptions.Get(); err != nil {
+		fmt.Fprintf(os.Stderr, "Invalid platform options: %v", err)
+		os.Exit(3)
+	} else if platformOptions != nil && platformOptions.CredhubURI != "" {
+		err = credhub.InterpolateServiceRefs(platformOptions.CredhubURI)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to interpolate credhub refs: %v", err)
+			os.Exit(4)
+		}
+	}
+
+	if os.Getenv("VCAP_SERVICES") != "" {
+		dbUri := databaseuri.New()
+		if creds, err := dbUri.Credentials([]byte(os.Getenv("VCAP_SERVICES"))); err == nil {
+			databaseUrl := dbUri.Uri(creds)
+			if databaseUrl != "" {
+				os.Setenv("DATABASE_URL", databaseUrl)
+			}
+		}
 	}
 
 	runner := buildpackrunner.New(&config)

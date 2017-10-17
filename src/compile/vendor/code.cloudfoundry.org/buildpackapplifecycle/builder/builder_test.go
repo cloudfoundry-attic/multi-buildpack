@@ -2,24 +2,30 @@ package main_test
 
 import (
 	"crypto/md5"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
 	"code.cloudfoundry.org/buildpackapplifecycle"
+	"code.cloudfoundry.org/buildpackapplifecycle/containerpath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
+	"github.com/onsi/gomega/ghttp"
 )
 
 var _ = Describe("Building", func() {
@@ -104,7 +110,7 @@ var _ = Describe("Building", func() {
 			"-skipDetect="+strconv.FormatBool(skipDetect),
 		)
 
-		env := os.Environ()
+		env := append(os.Environ(), "TEST_CREDENTIAL_FILTER_WHITELIST=DATABASE_URL,VCAP_SERVICES")
 		builderCmd.Env = append(env, "TMPDIR="+tmpDir)
 		builderCmd.Dir = tmpDir
 	})
@@ -124,6 +130,255 @@ var _ = Describe("Building", func() {
 		Expect(err).ToNot(HaveOccurred())
 		return bytes
 	}
+
+	Describe("interpolation of credhub-ref in VCAP_SERVICES", func() {
+		var (
+			server            *ghttp.Server
+			session           *gexec.Session
+			fixturesSslDir    string
+			userProfile       string
+			vcapServices      string
+			cfInstanceCert    string
+			cfInstanceKey     string
+			cfSystemCertsPath string
+			err               error
+		)
+
+		VerifyClientCerts := func() http.HandlerFunc {
+			return func(w http.ResponseWriter, req *http.Request) {
+				tlsConnectionState := req.TLS
+				Expect(tlsConnectionState).NotTo(BeNil())
+				Expect(tlsConnectionState.PeerCertificates).NotTo(BeEmpty())
+				Expect(tlsConnectionState.PeerCertificates[0].Subject.CommonName).To(Equal("example.com"))
+			}
+		}
+
+		BeforeEach(func() {
+			userProfile = os.Getenv("USERPROFILE")
+			cfInstanceCert = os.Getenv("CF_INSTANCE_CERT")
+			cfInstanceKey = os.Getenv("CF_INSTANCE_KEY")
+			cfSystemCertsPath = os.Getenv("CF_SYSTEM_CERTS_PATH")
+			vcapServices = os.Getenv("VCAP_SERVICES")
+
+			fixturesSslDir, err = filepath.Abs(filepath.Join("..", "fixtures"))
+			Expect(err).NotTo(HaveOccurred())
+
+			server = ghttp.NewUnstartedServer()
+
+			cert, err := tls.LoadX509KeyPair(filepath.Join(fixturesSslDir, "certs", "server-tls.crt"), filepath.Join(fixturesSslDir, "certs", "server-tls.key"))
+			Expect(err).NotTo(HaveOccurred())
+
+			caCerts := x509.NewCertPool()
+
+			caCertBytes, err := ioutil.ReadFile(filepath.Join(fixturesSslDir, "cacerts", "client-tls-ca.crt"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(caCerts.AppendCertsFromPEM(caCertBytes)).To(BeTrue())
+
+			server.HTTPTestServer.TLS = &tls.Config{
+				ClientAuth:   tls.RequireAndVerifyClientCert,
+				Certificates: []tls.Certificate{cert},
+				ClientCAs:    caCerts,
+			}
+			server.HTTPTestServer.StartTLS()
+
+			os.Setenv("USERPROFILE", fixturesSslDir)
+			if containerpath.For("/") == fixturesSslDir {
+				os.Setenv("CF_INSTANCE_CERT", filepath.Join("/certs", "client-tls.crt"))
+				os.Setenv("CF_INSTANCE_KEY", filepath.Join("/certs", "client-tls.key"))
+				os.Setenv("CF_SYSTEM_CERTS_PATH", "/cacerts")
+			} else {
+				os.Setenv("CF_INSTANCE_CERT", filepath.Join(fixturesSslDir, "certs", "client-tls.crt"))
+				os.Setenv("CF_INSTANCE_KEY", filepath.Join(fixturesSslDir, "certs", "client-tls.key"))
+				os.Setenv("CF_SYSTEM_CERTS_PATH", filepath.Join(fixturesSslDir, "cacerts"))
+			}
+
+			buildpackOrder = "always-detects"
+			cpBuildpack("always-detects")
+		})
+
+		AfterEach(func() {
+			server.Close()
+			os.Setenv("USERPROFILE", userProfile)
+			os.Setenv("CF_INSTANCE_CERT", cfInstanceCert)
+			os.Setenv("CF_INSTANCE_KEY", cfInstanceKey)
+			os.Setenv("CF_SYSTEM_CERTS_PATH", cfSystemCertsPath)
+			os.Setenv("VCAP_SERVICES", vcapServices)
+			os.Unsetenv("VCAP_PLATFORM_OPTIONS")
+		})
+
+		JustBeforeEach(func() {
+			var err error
+			session, err = gexec.Start(builderCmd, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("when VCAP_SERVICES contains credhub refs", func() {
+			var vcapServicesValue string
+			BeforeEach(func() {
+				vcapServicesValue = `{"my-server":[{"credentials":{"credhub-ref":"(//my-server/creds)"}}]}`
+				os.Setenv("VCAP_SERVICES", vcapServicesValue)
+			})
+
+			Context("when the credhub location is passed to the launcher's platform options", func() {
+				BeforeEach(func() {
+					os.Setenv("VCAP_PLATFORM_OPTIONS", `{ "credhub_uri": "`+server.URL()+`"}`)
+				})
+
+				Context("when credhub successfully interpolates", func() {
+					BeforeEach(func() {
+						server.AppendHandlers(
+							ghttp.CombineHandlers(
+								ghttp.VerifyRequest("POST", "/api/v1/interpolate"),
+								ghttp.VerifyBody([]byte(vcapServicesValue)),
+								VerifyClientCerts(),
+								ghttp.RespondWith(http.StatusOK, "INTERPOLATED_JSON"),
+							))
+					})
+
+					It("updates VCAP_SERVICES with the interpolated content and runs the process without VCAP_PLATFORM_OPTIONS", func() {
+						Eventually(session).Should(gexec.Exit(0))
+						Eventually(session.Out).Should(gbytes.Say("VCAP_SERVICES=INTERPOLATED_JSON"))
+						Eventually(session.Out).ShouldNot(gbytes.Say("VCAP_PLATFORM_OPTIONS"))
+					})
+				})
+
+				Context("when credhub fails", func() {
+					BeforeEach(func() {
+						server.AppendHandlers(
+							ghttp.CombineHandlers(
+								ghttp.VerifyRequest("POST", "/api/v1/interpolate"),
+								ghttp.VerifyBody([]byte(vcapServicesValue)),
+								ghttp.RespondWith(http.StatusInternalServerError, "{}"),
+							))
+					})
+
+					It("prints an error message", func() {
+						Eventually(session).Should(gexec.Exit(4))
+						Eventually(session.Err).Should(gbytes.Say("Unable to interpolate credhub references"))
+					})
+				})
+			})
+
+			Context("when an empty string is passed for the launcher platform options", func() {
+				BeforeEach(func() {
+					os.Setenv("VCAP_PLATFORM_OPTIONS", "")
+				})
+
+				It("does not attempt to do any credhub interpolation", func() {
+					Eventually(session).Should(gexec.Exit(0))
+					Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("VCAP_SERVICES=%s", vcapServicesValue))))
+					Eventually(session.Out).ShouldNot(gbytes.Say("VCAP_PLATFORM_OPTIONS"))
+				})
+			})
+
+			Context("when an empty JSON is passed for the launcher platform options", func() {
+				BeforeEach(func() {
+					os.Setenv("VCAP_PLATFORM_OPTIONS", "{}")
+				})
+
+				It("does not attempt to do any credhub interpolation", func() {
+					Eventually(session).Should(gexec.Exit(0))
+					Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("VCAP_SERVICES=%s", vcapServicesValue))))
+					Eventually(session.Out).ShouldNot(gbytes.Say("VCAP_PLATFORM_OPTIONS"))
+				})
+			})
+
+			Context("when invalid JSON is passed for the launcher platform options", func() {
+				BeforeEach(func() {
+					os.Setenv("VCAP_PLATFORM_OPTIONS", `{"credhub_uri":"missing quote and brace`)
+				})
+
+				It("prints an error message", func() {
+					Eventually(session).Should(gexec.Exit(3))
+					Eventually(session.Err).Should(gbytes.Say("Invalid platform options"))
+				})
+			})
+		})
+
+		Context("VCAP_SERVICES has an appropriate database", func() {
+			const databaseURL = "postgres://thing.com/special"
+			BeforeEach(func() {
+				vcapServicesValue := `{"my-server":[{"credentials":{"credhub-ref":"(//my-server/creds)"}}]}`
+				os.Setenv("VCAP_PLATFORM_OPTIONS", `{ "credhub_uri": "`+server.URL()+`"}`)
+				os.Setenv("VCAP_SERVICES", vcapServicesValue)
+				server.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("POST", "/api/v1/interpolate"),
+						ghttp.RespondWith(http.StatusOK, `{"my-server":[{"credentials":{"uri":"`+databaseURL+`"}}]}`),
+					))
+			})
+			It("sets DATABASE_URL", func() {
+				Eventually(session).Should(gexec.Exit(0))
+				Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("DATABASE_URL=%s", databaseURL))))
+			})
+
+			Context("DATABASE_URL was set before running builder", func() {
+				BeforeEach(func() {
+					os.Setenv("DATABASE_URL", "original text")
+				})
+				AfterEach(func() {
+					os.Unsetenv("DATABASE_URL")
+				})
+
+				It("overrides DATABASE_URL", func() {
+					Eventually(session).Should(gexec.Exit(0))
+					Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("DATABASE_URL=%s", databaseURL))))
+					Expect(string(session.Out.Contents())).ToNot(ContainSubstring("DATABASE_URL=original content"))
+				})
+			})
+		})
+	})
+
+	Describe("setting DATABASE_URL env variable", func() {
+		var session *gexec.Session
+
+		AfterEach(func() {
+			os.Unsetenv("DATABASE_URL")
+		})
+
+		BeforeEach(func() {
+			buildpackOrder = "always-detects"
+			cpBuildpack("always-detects")
+		})
+
+		JustBeforeEach(func() {
+			var err error
+			session, err = gexec.Start(builderCmd, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("VCAP_SERVICES does not have an appropriate credential", func() {
+			It("DATABASE_URL is not set", func() {
+				Eventually(session).Should(gexec.Exit(0))
+				Expect(string(session.Out.Contents())).ToNot(ContainSubstring("DATABASE_URL="))
+			})
+		})
+		Context("VCAP_SERVICES has an appropriate credential", func() {
+			Context("VCAP_SERVICES is NOT encrypted", func() {
+				const databaseURL = "postgres://thing.com/special"
+				BeforeEach(func() {
+					vcapServicesValue := `{"my-server":[{"credentials":{"uri":"` + databaseURL + `"}}]}`
+					os.Setenv("VCAP_SERVICES", vcapServicesValue)
+				})
+				It("sets DATABASE_URL", func() {
+					Eventually(session).Should(gexec.Exit(0))
+					Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("DATABASE_URL=%s", databaseURL))))
+				})
+				Context("DATABASE_URL was set before running builder", func() {
+					BeforeEach(func() {
+						os.Setenv("DATABASE_URL", "original text")
+					})
+					AfterEach(func() { os.Unsetenv("DATABASE_URL") })
+
+					It("overrides DATABASE_URL", func() {
+						Eventually(session).Should(gexec.Exit(0))
+						Eventually(string(session.Out.Contents())).Should(ContainSubstring(fmt.Sprintf(fmt.Sprintf("DATABASE_URL=%s", databaseURL))))
+						Expect(string(session.Out.Contents())).ToNot(ContainSubstring("DATABASE_URL=original content"))
+					})
+				})
+			})
+		})
+	})
 
 	Context("run detect", func() {
 		BeforeEach(func() {
@@ -181,6 +436,14 @@ var _ = Describe("Building", func() {
 				It("runs supply/finalize and not compile", func() {
 					Expect(files).To(ContainElement("./app/finalized"))
 					Expect(files).ToNot(ContainElement("./app/compiled"))
+				})
+
+				It("places profile.d scripts in ./profile.d (not app)", func() {
+					if runtime.GOOS == "windows" {
+						Skip("profile.d not supported on Windows")
+					}
+
+					Expect(files).To(ContainElement("./profile.d/finalized.sh"))
 				})
 			})
 		})
