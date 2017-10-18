@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [".","buildpackrunner"]
-  revision = "ae49c5a15fd2b10a418a3cce263eb6c5f2af968b"
+  revision = "adec0bef085a1628bd576400439aab51ed9e3e77"
 
 [[projects]]
   branch = "master"
