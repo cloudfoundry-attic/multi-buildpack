@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [".","buildpackrunner"]
-  revision = "5d45849b795bbe2e6cf2a579c9f7a069ae688043"
+  revision = "ef6149f89963084c315b8771c1b5919afc1d4c62"
 
 [[projects]]
   branch = "master"
@@ -100,7 +100,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "92ac112afc6efd90284acda2b046fc0e351228f6"
+  revision = "607525c0eb3534cf37ade3d0f24fb9505c33caf3"
 
 [[projects]]
   branch = "master"
