@@ -113,6 +113,12 @@ func (c *MultiCompiler) Compile() error {
 		return err
 	}
 
+	err = c.CleanupStagingArea()
+	if err != nil {
+		c.Log.Warning("Unable to clean staging container: %s", err.Error())
+		return err
+	}
+
 	profiledDir := filepath.Join(c.BuildDir, ".profile.d")
 	err = os.MkdirAll(profiledDir, 0755)
 	if err != nil {
@@ -135,12 +141,6 @@ func (c *MultiCompiler) Compile() error {
 
 	if err != nil {
 		c.Log.Error("Unable create .profile.d/00000000_multi.sh script: %s", err.Error())
-		return err
-	}
-
-	err = c.CleanupStagingArea()
-	if err != nil {
-		c.Log.Warning("Unable to clean staging container: %s", err.Error())
 		return err
 	}
 
@@ -201,7 +201,29 @@ func (c *MultiCompiler) CleanupStagingArea() error {
 	if len(depsDirs) != 1 {
 		return fmt.Errorf("found %d deps dirs, expected 1", len(depsDirs))
 	}
-	return os.Rename(depsDirs[0], filepath.Join(c.BuildDir, ".deps"))
+	if err := os.Rename(depsDirs[0], filepath.Join(c.BuildDir, ".deps")); err != nil {
+		return err
+	}
+
+	profileDir := filepath.Join(depsDirs[0], "..", "profile.d")
+	if exists, err := libbuildpack.FileExists(profileDir); err != nil {
+		return err
+	} else if exists {
+		if err := os.MkdirAll(filepath.Join(c.BuildDir, ".profile.d"), 0755); err != nil {
+			return err
+		}
+		files, err := ioutil.ReadDir(profileDir)
+		if err != nil {
+			return err
+		}
+		for _, file := range files {
+			if err := os.Rename(filepath.Join(profileDir, file.Name()), filepath.Join(c.BuildDir, ".profile.d", file.Name())); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func removeAll(s []string, r []string) []string {
