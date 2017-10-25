@@ -11,7 +11,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [".","buildpackrunner"]
-  revision = "7652efa47b85edc69c571153463d976c6b24b4c1"
+  revision = "5d45849b795bbe2e6cf2a579c9f7a069ae688043"
 
 [[projects]]
   branch = "master"
@@ -94,19 +94,19 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","html","html/atom","html/charset"]
-  revision = "5561cd9b4330353950f399814f427425c0a26fd2"
+  revision = "4b14673ba32bee7f5ac0f990a48f033919fd418b"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "a1a1f1746d156bbc9954f29134b20ed4ce2752f1"
+  revision = "92ac112afc6efd90284acda2b046fc0e351228f6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/utf8internal","language","runes","transform","unicode/cldr"]
-  revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
+  revision = "6eab0e8f74e86c598ec3b6fad4888e0c11482d48"
 
 [[projects]]
   branch = "v2"

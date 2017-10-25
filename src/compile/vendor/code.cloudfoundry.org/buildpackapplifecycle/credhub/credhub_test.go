@@ -5,11 +5,11 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"code.cloudfoundry.org/buildpackapplifecycle/containerpath"
 	"code.cloudfoundry.org/buildpackapplifecycle/credhub"
+	"code.cloudfoundry.org/goshims/osshim/os_fake"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
@@ -18,15 +18,13 @@ import (
 var _ = Describe("credhub", func() {
 	Describe("InterpolateServiceRefs", func() {
 		var (
+			vcapServicesValue string
 			server            *ghttp.Server
 			fixturesSslDir    string
-			userProfile       string
-			vcapServices      string
-			cfInstanceCert    string
-			cfInstanceKey     string
-			cfSystemCertsPath string
 			err               error
-			vcapServicesValue string
+
+			fakeOs  *os_fake.FakeOs
+			subject *credhub.Credhub
 		)
 
 		VerifyClientCerts := func() http.HandlerFunc {
@@ -39,16 +37,22 @@ var _ = Describe("credhub", func() {
 		}
 
 		BeforeEach(func() {
-			userProfile = os.Getenv("USERPROFILE")
-			cfInstanceCert = os.Getenv("CF_INSTANCE_CERT")
-			cfInstanceKey = os.Getenv("CF_INSTANCE_KEY")
-			cfSystemCertsPath = os.Getenv("CF_SYSTEM_CERT_PATH")
-			vcapServices = os.Getenv("VCAP_SERVICES")
+			fakeOs = &os_fake.FakeOs{}
+			fakeEnv := make(map[string]string)
+			fakeOs.SetenvStub = func(key, value string) error {
+				fakeEnv[key] = value
+				return nil
+			}
+			fakeOs.GetenvStub = func(key string) string {
+				return fakeEnv[key]
+			}
+			fakeOs.UnsetenvStub = func(key string) error {
+				delete(fakeEnv, key)
+				return nil
+			}
 
 			fixturesSslDir, err := filepath.Abs(filepath.Join("..", "fixtures"))
 			Expect(err).NotTo(HaveOccurred())
-
-			os.Setenv("USERPROFILE", fixturesSslDir)
 
 			server = ghttp.NewUnstartedServer()
 
@@ -68,49 +72,47 @@ var _ = Describe("credhub", func() {
 			}
 			server.HTTPTestServer.StartTLS()
 
-			if containerpath.For("/") == fixturesSslDir {
-				os.Setenv("CF_INSTANCE_CERT", filepath.Join("/certs", "client-tls.crt"))
-				os.Setenv("CF_INSTANCE_KEY", filepath.Join("/certs", "client-tls.key"))
-				os.Setenv("CF_SYSTEM_CERT_PATH", "/cacerts")
+			cpath := containerpath.New(fixturesSslDir)
+			fakeOs.Setenv("USERPROFILE", fixturesSslDir)
+			if cpath.For("/") == fixturesSslDir {
+				fakeOs.Setenv("CF_INSTANCE_CERT", filepath.Join("/certs", "client-tls.crt"))
+				fakeOs.Setenv("CF_INSTANCE_KEY", filepath.Join("/certs", "client-tls.key"))
+				fakeOs.Setenv("CF_SYSTEM_CERT_PATH", "/cacerts")
 			} else {
-				os.Setenv("CF_INSTANCE_CERT", filepath.Join(fixturesSslDir, "certs", "client-tls.crt"))
-				os.Setenv("CF_INSTANCE_KEY", filepath.Join(fixturesSslDir, "certs", "client-tls.key"))
-				os.Setenv("CF_SYSTEM_CERT_PATH", filepath.Join(fixturesSslDir, "cacerts"))
+				fakeOs.Setenv("CF_INSTANCE_CERT", filepath.Join(fixturesSslDir, "certs", "client-tls.crt"))
+				fakeOs.Setenv("CF_INSTANCE_KEY", filepath.Join(fixturesSslDir, "certs", "client-tls.key"))
+				fakeOs.Setenv("CF_SYSTEM_CERT_PATH", filepath.Join(fixturesSslDir, "cacerts"))
 			}
+
+			subject = credhub.New(fakeOs)
 		})
 
 		AfterEach(func() {
 			server.Close()
-			os.Setenv("USERPROFILE", userProfile)
-			os.Setenv("CF_INSTANCE_CERT", cfInstanceCert)
-			os.Setenv("CF_INSTANCE_KEY", cfInstanceKey)
-			os.Setenv("CF_SYSTEM_CERT_PATH", cfSystemCertsPath)
-			os.Setenv("VCAP_SERVICES", vcapServices)
 		})
 
 		BeforeEach(func() {
 			vcapServicesValue = `{"my-server":[{"credentials":{"credhub-ref":"(//my-server/creds)"}}]}`
-			os.Setenv("VCAP_SERVICES", vcapServicesValue)
+			fakeOs.Setenv("VCAP_SERVICES", vcapServicesValue)
 		})
 
 		JustBeforeEach(func() {
-			err = credhub.InterpolateServiceRefs(server.URL())
+			err = subject.InterpolateServiceRefs(server.URL())
 		})
 
 		Context("when there are no credhub refs in VCAP_SERVICES and no TLS environment variables are present", func() {
 			BeforeEach(func() {
-				os.Unsetenv("CF_INSTANCE_CERT")
-				os.Unsetenv("CF_INSTANCE_KEY")
-				os.Unsetenv("CF_SYSTEM_CERT_PATH")
-				os.Unsetenv("USERPROFILE")
+				fakeOs.Unsetenv("CF_INSTANCE_CERT")
+				fakeOs.Unsetenv("CF_INSTANCE_KEY")
+				fakeOs.Unsetenv("CF_SYSTEM_CERT_PATH")
 
 				vcapServicesValue = `{"my-server":[{"credentials":{"no refs here":"and this string containing credhub-ref doesnt count"}}]}`
-				os.Setenv("VCAP_SERVICES", vcapServicesValue)
+				fakeOs.Setenv("VCAP_SERVICES", vcapServicesValue)
 			})
 
 			It("does not fail and does not change VCAP_SERVICES", func() {
 				Expect(err).NotTo(HaveOccurred())
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
 			})
 		})
 
@@ -127,7 +129,7 @@ var _ = Describe("credhub", func() {
 
 			It("updates VCAP_SERVICES with the interpolated content and runs the process without VCAP_PLATFORM_OPTIONS", func() {
 				Expect(err).NotTo(HaveOccurred())
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal("INTERPOLATED_JSON"))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal("INTERPOLATED_JSON"))
 			})
 		})
 
@@ -143,47 +145,48 @@ var _ = Describe("credhub", func() {
 
 			It("returns an error and doesn't change VCAP_SERVICES", func() {
 				Expect(err).To(MatchError(MatchRegexp("Unable to interpolate credhub references")))
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
 			})
 		})
 
 		Context("when the instance cert and key are invalid", func() {
 			BeforeEach(func() {
-				if containerpath.For("/") == fixturesSslDir {
-					os.Setenv("CF_INSTANCE_CERT", "not_a_cert")
-					os.Setenv("CF_INSTANCE_KEY", "not_a_cert")
+				cpath := containerpath.New(fixturesSslDir)
+				if cpath.For("/") == fixturesSslDir {
+					fakeOs.Setenv("CF_INSTANCE_CERT", "not_a_cert")
+					fakeOs.Setenv("CF_INSTANCE_KEY", "not_a_cert")
 				} else {
-					os.Setenv("CF_INSTANCE_CERT", filepath.Join(fixturesSslDir, "not_a_cert"))
-					os.Setenv("CF_INSTANCE_KEY", filepath.Join(fixturesSslDir, "not_a_cert"))
+					fakeOs.Setenv("CF_INSTANCE_CERT", filepath.Join(fixturesSslDir, "not_a_cert"))
+					fakeOs.Setenv("CF_INSTANCE_KEY", filepath.Join(fixturesSslDir, "not_a_cert"))
 				}
 			})
 
 			It("returns an error and doesn't change VCAP_SERVICES", func() {
 				Expect(err).To(MatchError(MatchRegexp("Unable to set up credhub client")))
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
 			})
 		})
 
 		Context("when the instance cert and key aren't set", func() {
 			BeforeEach(func() {
-				os.Unsetenv("CF_INSTANCE_CERT")
-				os.Unsetenv("CF_INSTANCE_KEY")
+				fakeOs.Unsetenv("CF_INSTANCE_CERT")
+				fakeOs.Unsetenv("CF_INSTANCE_KEY")
 			})
 
 			It("returns an error and doesn't change VCAP_SERVICES", func() {
 				Expect(err).To(MatchError(MatchRegexp("Missing CF_INSTANCE_CERT and/or CF_INSTANCE_KEY")))
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
 			})
 		})
 
 		Context("when the system certs path isn't set", func() {
 			BeforeEach(func() {
-				os.Unsetenv("CF_SYSTEM_CERT_PATH")
+				fakeOs.Unsetenv("CF_SYSTEM_CERT_PATH")
 			})
 
 			It("prints an error message", func() {
 				Expect(err).To(MatchError(MatchRegexp("Missing CF_SYSTEM_CERT_PATH")))
-				Expect(os.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
+				Expect(fakeOs.Getenv("VCAP_SERVICES")).To(Equal(vcapServicesValue))
 			})
 		})
 	})

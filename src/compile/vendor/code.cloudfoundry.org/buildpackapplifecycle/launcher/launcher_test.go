@@ -49,8 +49,6 @@ var _ = Describe("Launcher", func() {
 	}
 
 	BeforeEach(func() {
-		Expect(os.Setenv("CALLERENV", "some-value")).To(Succeed())
-
 		if runtime.GOOS == "windows" {
 			startCommand = "cmd /C set && echo PWD=%cd% && echo running app"
 		} else {
@@ -70,6 +68,7 @@ var _ = Describe("Launcher", func() {
 			Dir:  extractDir,
 			Env: append(
 				os.Environ(),
+				"CALLERENV=some-value",
 				"TEST_CREDENTIAL_FILTER_WHITELIST=CALLERENV,DEPS_DIR,VCAP_APPLICATION,VCAP_SERVICES,A,B,C,INSTANCE_GUID,INSTANCE_INDEX,PORT,DATABASE_URL",
 				"PORT=8080",
 				"INSTANCE_GUID=some-instance-guid",
@@ -313,7 +312,6 @@ var _ = Describe("Launcher", func() {
 		var (
 			server         *ghttp.Server
 			fixturesSslDir string
-			userProfile    string
 			err            error
 		)
 
@@ -327,12 +325,8 @@ var _ = Describe("Launcher", func() {
 		}
 
 		BeforeEach(func() {
-			userProfile = os.Getenv("USERPROFILE")
-
 			fixturesSslDir, err = filepath.Abs(filepath.Join("..", "fixtures"))
 			Expect(err).NotTo(HaveOccurred())
-
-			os.Setenv("USERPROFILE", fixturesSslDir)
 
 			server = ghttp.NewUnstartedServer()
 
@@ -354,7 +348,8 @@ var _ = Describe("Launcher", func() {
 
 			removeFromLauncherEnv("USERPROFILE")
 			launcherCmd.Env = append(launcherCmd.Env, fmt.Sprintf("USERPROFILE=%s", fixturesSslDir))
-			if containerpath.For("/") == fixturesSslDir {
+			cpath := containerpath.New(fixturesSslDir)
+			if cpath.For("/") == fixturesSslDir {
 				launcherCmd.Env = append(launcherCmd.Env, fmt.Sprintf("CF_INSTANCE_CERT=%s", filepath.Join("/certs", "client-tls.crt")))
 				launcherCmd.Env = append(launcherCmd.Env, fmt.Sprintf("CF_INSTANCE_KEY=%s", filepath.Join("/certs", "client-tls.key")))
 				launcherCmd.Env = append(launcherCmd.Env, fmt.Sprintf("CF_SYSTEM_CERT_PATH=%s", "/cacerts"))
@@ -374,7 +369,6 @@ var _ = Describe("Launcher", func() {
 
 		AfterEach(func() {
 			server.Close()
-			os.Setenv("USERPROFILE", userProfile)
 		})
 
 		Context("when VCAP_SERVICES contains credhub refs", func() {
@@ -418,7 +412,7 @@ var _ = Describe("Launcher", func() {
 					})
 
 					It("prints an error message", func() {
-						Eventually(session).Should(gexec.Exit(4))
+						Eventually(session).Should(gexec.Exit(3))
 						Eventually(session.Err).Should(gbytes.Say("Unable to interpolate credhub references"))
 					})
 				})
