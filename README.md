@@ -1,8 +1,8 @@
-# Cloud Foundry Experimental Multi-buildpack
+# Cloud Foundry Multi-buildpack
 
 [![CF Slack](https://www.google.com/s2/favicons?domain=www.slack.com) Join us on Slack](https://cloudfoundry.slack.com/messages/buildpacks/)
 
-The multi-buildpack buildpack provides older Cloud Foundry deployments with the multi-buildpack support that is available in Cloud Foundry's CAPI v3 API. See [Understanding Buildpacks](https://docs.cloudfoundry.org/buildpacks/understand-buildpacks.html) for more info.
+The multi-buildpack buildpack provides older Cloud Foundry deployments with the same multi-buildpack support that is available in Cloud Foundry's CAPI v3 API. See [Understanding Buildpacks](https://docs.cloudfoundry.org/buildpacks/understand-buildpacks.html) for more info.
 
 ## Usage
 
@@ -70,7 +70,3 @@ Please fill out the issue template fully if you'd like to start an issue for the
 ### Active Development
 
 The project backlog is on [Pivotal Tracker](https://www.pivotaltracker.com/projects/1042066)
-
-## Disclaimer
-
-This buildpack is experimental and not yet intended for production use.
