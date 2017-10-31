@@ -1,3 +1,11 @@
+v1.0.2 Oct 31, 2017
+====================
+
+* Copy profile.d to app
+  (https://www.pivotaltracker.com/story/show/152276154)
+
+* Update go version for un-built mode to 1.9.1
+
 v1.0.1 Oct 10, 2017
 ====================
 
