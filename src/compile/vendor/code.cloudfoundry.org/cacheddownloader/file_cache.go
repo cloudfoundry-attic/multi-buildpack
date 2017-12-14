@@ -344,7 +344,7 @@ func (c *FileCache) GetDirectory(logger lager.Logger, cacheKey string) (string, 
 }
 
 func (c *FileCache) Remove(logger lager.Logger, cacheKey string) {
-	logger = logger.Session("file-cache.get-directory", lager.Data{"cache_key": cacheKey})
+	logger = logger.Session("file-cache.remove", lager.Data{"cache_key": cacheKey})
 
 	lock.Lock()
 	logger.Info("starting")
