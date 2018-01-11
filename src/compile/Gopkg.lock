@@ -17,7 +17,7 @@
     ".",
     "buildpackrunner"
   ]
-  revision = "ef6149f89963084c315b8771c1b5919afc1d4c62"
+  revision = "3746a1e5aa88947bc7ce682bb2843623b9e24907"
 
 [[projects]]
   branch = "master"
@@ -141,13 +141,13 @@
     "html/atom",
     "html/charset"
   ]
-  revision = "434ec0c7fe3742c984919a691b2018a6e9694425"
+  revision = "ab555f366c4508dbe0802550b1b20c46c5c18aa0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "b9cf5f96b68d9eaa53d5db5fef235718767f416a"
+  revision = "810d7000345868fc619eb81f46307107118f4ae1"
 
 [[projects]]
   branch = "master"
