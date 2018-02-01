@@ -101,7 +101,7 @@ func New(
 	cache *FileCache,
 	transformer CacheTransformer,
 ) *cachedDownloader {
-	os.MkdirAll(cache.CachedPath, 0777)
+	os.MkdirAll(cache.CachedPath, 0770)
 	return &cachedDownloader{
 		cache:         cache,
 		cacheLocation: filepath.Join(cache.CachedPath, "saved_cache.json"),
