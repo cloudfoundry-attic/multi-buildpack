@@ -4,19 +4,13 @@
 [[projects]]
   branch = "master"
   name = "code.cloudfoundry.org/archiver"
-  packages = [
-    "compressor",
-    "extractor"
-  ]
+  packages = ["compressor","extractor"]
   revision = "7291196139d7ff307249aef1a9febb710e413047"
 
 [[projects]]
   branch = "master"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
-  packages = [
-    ".",
-    "buildpackrunner"
-  ]
+  packages = [".","buildpackrunner"]
   revision = "3746a1e5aa88947bc7ce682bb2843623b9e24907"
 
 [[projects]]
@@ -58,11 +52,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/cloudfoundry/libbuildpack"
-  packages = [
-    ".",
-    "cutlass",
-    "packager"
-  ]
+  packages = [".","cutlass","packager"]
   revision = "f6abef86c75b0d34a7bf639d985a89d2f48e4de4"
 
 [[projects]]
@@ -78,46 +68,20 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/google/subcommands"
+  packages = ["."]
+  revision = "ce3d4cfc062faac7115d44e5befec8b5a08c3faa"
+
+[[projects]]
+  branch = "master"
   name = "github.com/onsi/ginkgo"
-  packages = [
-    ".",
-    "config",
-    "internal/codelocation",
-    "internal/containernode",
-    "internal/failer",
-    "internal/leafnodes",
-    "internal/remote",
-    "internal/spec",
-    "internal/spec_iterator",
-    "internal/specrunner",
-    "internal/suite",
-    "internal/testingtproxy",
-    "internal/writer",
-    "reporters",
-    "reporters/stenographer",
-    "reporters/stenographer/support/go-colorable",
-    "reporters/stenographer/support/go-isatty",
-    "types"
-  ]
+  packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
   revision = "ae6829de29c3af4e009138c7bae3be0f67175ef8"
 
 [[projects]]
   branch = "master"
   name = "github.com/onsi/gomega"
-  packages = [
-    ".",
-    "format",
-    "internal/assertion",
-    "internal/asyncassertion",
-    "internal/oraclematcher",
-    "internal/testingtsupport",
-    "matchers",
-    "matchers/support/goraph/bipartitegraph",
-    "matchers/support/goraph/edge",
-    "matchers/support/goraph/node",
-    "matchers/support/goraph/util",
-    "types"
-  ]
+  packages = [".","format","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
   revision = "7c333ae4191282b0f034a8e1dcb2dcb62b4cf723"
 
 [[projects]]
@@ -135,12 +99,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = [
-    "context",
-    "html",
-    "html/atom",
-    "html/charset"
-  ]
+  packages = ["context","html","html/atom","html/charset"]
   revision = "f5dfe339be1d06f81b22525fe34671ee7d2c8904"
 
 [[projects]]
@@ -152,25 +111,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = [
-    "encoding",
-    "encoding/charmap",
-    "encoding/htmlindex",
-    "encoding/internal",
-    "encoding/internal/identifier",
-    "encoding/japanese",
-    "encoding/korean",
-    "encoding/simplifiedchinese",
-    "encoding/traditionalchinese",
-    "encoding/unicode",
-    "internal/gen",
-    "internal/tag",
-    "internal/utf8internal",
-    "language",
-    "runes",
-    "transform",
-    "unicode/cldr"
-  ]
+  packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/utf8internal","language","runes","transform","unicode/cldr"]
   revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
 [[projects]]
@@ -182,6 +123,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "84169877f6c4b775bd586b11dd9f229021df20f2624a44a4da28c68a65d86568"
+  inputs-digest = "1b0118b427ae2f857ac5d9233f7fc372803f98d202228322a0918e85988c60e9"
   solver-name = "gps-cdcl"
   solver-version = 1
