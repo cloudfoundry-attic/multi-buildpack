@@ -17,7 +17,7 @@
     ".",
     "buildpackrunner"
   ]
-  revision = "3746a1e5aa88947bc7ce682bb2843623b9e24907"
+  revision = "8456e20612b6bdc5708a3ff99820e268fe25af7f"
 
 [[projects]]
   branch = "master"
@@ -36,12 +36,6 @@
   packages = ["."]
   revision = "0bfa98e49e7a976af91e918d47978f07c00b081f"
   version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "code.cloudfoundry.org/systemcerts"
-  packages = ["."]
-  revision = "48f99f18ec4515f90316860290bccd8f80edaa63"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
