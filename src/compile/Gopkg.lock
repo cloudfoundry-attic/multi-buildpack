@@ -17,7 +17,7 @@
     ".",
     "buildpackrunner"
   ]
-  revision = "8456e20612b6bdc5708a3ff99820e268fe25af7f"
+  revision = "2e7286a8f8c9d1dafe3446b44d52a82995f90e3e"
 
 [[projects]]
   branch = "master"
@@ -29,13 +29,19 @@
   branch = "master"
   name = "code.cloudfoundry.org/cacheddownloader"
   packages = ["."]
-  revision = "aec397f1fd8ac044458277218cbf2a0137af3c0d"
+  revision = "d51a82f1bc6262f8d2db272f79a65b399d33d285"
 
 [[projects]]
   name = "code.cloudfoundry.org/lager"
   packages = ["."]
   revision = "0bfa98e49e7a976af91e918d47978f07c00b081f"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/systemcerts"
+  packages = ["."]
+  revision = "6123281b2e0ac9c138e35e0f15163e1f102d93c9"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
@@ -74,7 +80,7 @@
   branch = "master"
   name = "github.com/google/subcommands"
   packages = ["."]
-  revision = "ce3d4cfc062faac7115d44e5befec8b5a08c3faa"
+  revision = "a3682377147edf596d303faabd89f81977b3f678"
 
 [[projects]]
   branch = "master"
@@ -118,7 +124,7 @@
     "matchers/support/goraph/util",
     "types"
   ]
-  revision = "49e4233a3b46c26dddd43cf84547cf31c92d0f2b"
+  revision = "de89e61d40b75aa971a9fc3eae7f4fefabd6e0ee"
 
 [[projects]]
   name = "github.com/tidwall/gjson"
@@ -141,13 +147,13 @@
     "html/atom",
     "html/charset"
   ]
-  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
+  revision = "d25186b37f34ebdbbea8f488ef055638dfab272d"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
+  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
   name = "golang.org/x/text"
