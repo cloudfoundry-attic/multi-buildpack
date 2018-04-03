@@ -306,16 +306,24 @@ var _ = Describe("Downloader", func() {
 
 				testServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					requestInitiated <- struct{}{}
-					<-completeRequest
+					select {
+					case <-completeRequest:
+					case <-time.After(30 * time.Second):
+						return
+					}
 					w.Write(bytes.Repeat([]byte("a"), 1024))
 					w.(http.Flusher).Flush()
-					<-completeRequest
+					select {
+					case <-completeRequest:
+					case <-time.After(30 * time.Second):
+						return
+					}
 				}))
 
 				serverUrl, _ = url.Parse(testServer.URL + "/somepath")
 			})
 
-			It("cancels the request", func() {
+			It("cancels the request and returns the error", func() {
 				errs := make(chan error)
 
 				go func() {
@@ -326,7 +334,10 @@ var _ = Describe("Downloader", func() {
 				Eventually(requestInitiated).Should(Receive())
 				close(cancelChan)
 
-				Eventually(errs).Should(Receive(BeAssignableToTypeOf(cacheddownloader.NewDownloadCancelledError("", 0, cacheddownloader.NoBytesReceived))))
+				Eventually(errs).Should(Receive(SatisfyAll(
+					BeAssignableToTypeOf(&cacheddownloader.DownloadCancelledError{}),
+					MatchError(MatchRegexp(`Download cancelled: source 'fetch-request', duration .*, Error: .*`)),
+				)))
 
 				close(completeRequest)
 			})
@@ -343,7 +354,7 @@ var _ = Describe("Downloader", func() {
 				completeRequest <- struct{}{}
 				close(cancelChan)
 
-				Eventually(errs).Should(Receive(BeAssignableToTypeOf(cacheddownloader.NewDownloadCancelledError("", 0, cacheddownloader.NoBytesReceived))))
+				Eventually(errs).Should(Receive(BeAssignableToTypeOf(&cacheddownloader.DownloadCancelledError{})))
 				close(completeRequest)
 			})
 		})
@@ -681,7 +692,7 @@ var _ = Describe("Downloader", func() {
 				cancelChan := make(chan struct{}, 0)
 				close(cancelChan)
 				_, _, err := downloadTestFile(cancelChan)
-				Expect(err).To(BeAssignableToTypeOf(cacheddownloader.NewDownloadCancelledError("", 0, cacheddownloader.NoBytesReceived)))
+				Expect(err).To(BeAssignableToTypeOf(&cacheddownloader.DownloadCancelledError{}))
 				<-barrier
 			})
 		})

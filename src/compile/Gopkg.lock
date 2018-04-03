@@ -17,7 +17,7 @@
     ".",
     "buildpackrunner"
   ]
-  revision = "2e7286a8f8c9d1dafe3446b44d52a82995f90e3e"
+  revision = "1e1fa5ae3fdb39bf974fe111ce2e7373473550fc"
 
 [[projects]]
   branch = "master"
@@ -29,7 +29,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/cacheddownloader"
   packages = ["."]
-  revision = "d51a82f1bc6262f8d2db272f79a65b399d33d285"
+  revision = "34f4570d8caa409f4d81dd1ee4360d1a3a9caf90"
 
 [[projects]]
   name = "code.cloudfoundry.org/lager"
@@ -46,8 +46,8 @@
 [[projects]]
   name = "github.com/Masterminds/semver"
   packages = ["."]
-  revision = "15d8430ab86497c5c0da827b748823945e1cf1e1"
-  version = "v1.4.0"
+  revision = "8d82589cda2d7b5b9167396841975c4535c9bec6"
+  version = "v1.4.1"
 
 [[projects]]
   name = "github.com/blang/semver"
@@ -74,7 +74,7 @@
   branch = "master"
   name = "github.com/golang/mock"
   packages = ["gomock"]
-  revision = "58cd061d09382b6011f84c1291ebe50ef2e25bab"
+  revision = "0d6884b72b943387bb12268d5178dde0e759e49a"
 
 [[projects]]
   branch = "master"
@@ -147,13 +147,13 @@
     "html/atom",
     "html/charset"
   ]
-  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
+  revision = "b68f30494add4df6bd8ef5e82803f308e7f7c59c"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "c488ab1dd8481ef762f96a79a9577c27825be697"
+  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -182,8 +182,8 @@
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"

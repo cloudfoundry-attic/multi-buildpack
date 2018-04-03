@@ -22,13 +22,17 @@ type DownloadCancelledError struct {
 	source   string
 	duration time.Duration
 	written  int64
+
+	additionalError error
 }
 
-func NewDownloadCancelledError(source string, duration time.Duration, written int64) error {
+func NewDownloadCancelledError(source string, duration time.Duration, written int64, additionalError error) error {
 	return &DownloadCancelledError{
 		source:   source,
 		duration: duration,
 		written:  written,
+
+		additionalError: additionalError,
 	}
 }
 
@@ -36,6 +40,9 @@ func (e *DownloadCancelledError) Error() string {
 	msg := fmt.Sprintf("Download cancelled: source '%s', duration '%s'", e.source, e.duration)
 	if e.written != NoBytesReceived {
 		msg = fmt.Sprintf("%s, bytes '%d'", msg, e.written)
+	}
+	if e.additionalError != nil {
+		msg = fmt.Sprintf("%s, Error: %s", msg, e.additionalError.Error())
 	}
 	return msg
 }
@@ -115,7 +122,7 @@ func (downloader *Downloader) Download(
 	select {
 	case downloader.concurrentDownloadBarrier <- struct{}{}:
 	case <-cancelChan:
-		return "", CachingInfoType{}, NewDownloadCancelledError("download-barrier", time.Now().Sub(startTime), NoBytesReceived)
+		return "", CachingInfoType{}, NewDownloadCancelledError("download-barrier", time.Now().Sub(startTime), NoBytesReceived, nil)
 	}
 	logger.Info("download-barrier", lager.Data{"duration-ns": time.Now().Sub(startTime)})
 
@@ -192,7 +199,7 @@ func (downloader *Downloader) fetchToFile(
 	if err != nil {
 		select {
 		case <-cancelChan:
-			err = NewDownloadCancelledError("fetch-request", time.Now().Sub(startTime), NoBytesReceived)
+			err = NewDownloadCancelledError("fetch-request", time.Now().Sub(startTime), NoBytesReceived, err)
 		default:
 		}
 		return "", CachingInfoType{}, err
@@ -270,7 +277,7 @@ func copyToDestinationFile(
 		logger.Error("copy-failed", err, lager.Data{"duration-ns": time.Now().Sub(startTime), "bytes-written": written})
 		select {
 		case <-cancelChan:
-			err = NewDownloadCancelledError("copy-body", time.Now().Sub(startTime), written)
+			err = NewDownloadCancelledError("copy-body", time.Now().Sub(startTime), written, err)
 		default:
 		}
 		return "", CachingInfoType{}, err

@@ -314,7 +314,7 @@ func (c *cachedDownloader) acquireLimiter(logger lager.Logger, cacheKey string, 
 		select {
 		case <-rateLimiter:
 		case <-cancelChan:
-			return nil, NewDownloadCancelledError("acquire-limiter", time.Now().Sub(startTime), NoBytesReceived)
+			return nil, NewDownloadCancelledError("acquire-limiter", time.Now().Sub(startTime), NoBytesReceived, nil)
 		}
 	}
 }
