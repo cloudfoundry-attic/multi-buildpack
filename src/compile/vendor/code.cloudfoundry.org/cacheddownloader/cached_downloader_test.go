@@ -680,7 +680,7 @@ var _ = Describe("File cache", func() {
 
 		It("returns a NotCacheable error if the cache key is empty", func() {
 			_, _, fetchErr := cachedDownloader.FetchAsDirectory(logger, url, "", checksum, cancelChan)
-			Expect(fetchErr).To(Equal(cacheddownloader.NotCacheable))
+			Expect(fetchErr).To(MatchError(ContainSubstring("cache key is missing")))
 		})
 
 		Context("when the file is not in the cache", func() {
@@ -743,7 +743,7 @@ var _ = Describe("File cache", func() {
 				})
 
 				It("should error", func() {
-					Expect(fetchErr).To(HaveOccurred())
+					Expect(fetchErr).To(MatchError(ContainSubstring("ETag and Last-Modified")))
 				})
 			})
 

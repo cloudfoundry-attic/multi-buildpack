@@ -14,10 +14,11 @@ import (
 )
 
 var (
-	lock          = &sync.Mutex{}
-	EntryNotFound = errors.New("Entry Not Found")
-	AlreadyClosed = errors.New("Already closed directory")
-	NotCacheable  = errors.New("Not cacheable directory")
+	lock                   = &sync.Mutex{}
+	EntryNotFound          = errors.New("Entry Not Found")
+	AlreadyClosed          = errors.New("Already closed directory")
+	MissingCacheKeyErr     = errors.New("Not cacheable directory: cache key is missing")
+	MissingCacheHeadersErr = errors.New("Not cacheable directory: ETag and Last-Modified were missing from response")
 )
 
 type FileCache struct {

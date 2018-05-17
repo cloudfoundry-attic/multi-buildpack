@@ -243,7 +243,7 @@ func (c *cachedDownloader) fetchCachedFile(logger lager.Logger, url *url.URL, ca
 
 func (c *cachedDownloader) FetchAsDirectory(logger lager.Logger, url *url.URL, cacheKey string, checksum ChecksumInfoType, cancelChan <-chan struct{}) (string, int64, error) {
 	if cacheKey == "" {
-		return "", 0, NotCacheable
+		return "", 0, MissingCacheKeyErr
 	}
 
 	cacheKey = fmt.Sprintf("%x", md5.Sum([]byte(cacheKey)))
@@ -285,11 +285,10 @@ func (c *cachedDownloader) fetchCachedDirectory(logger lager.Logger, url *url.UR
 		newDirectory, err = c.cache.AddDirectory(logger, cacheKey, download.path, download.size, download.cachingInfo)
 		// return newly fetched directory
 		return newDirectory, size, err
-	} else {
-		c.cache.Remove(logger, cacheKey)
 	}
 
-	return "", 0, NotCacheable
+	c.cache.Remove(logger, cacheKey)
+	return "", 0, MissingCacheHeadersErr
 }
 
 func (c *cachedDownloader) acquireLimiter(logger lager.Logger, cacheKey string, cancelChan <-chan struct{}) (chan struct{}, error) {
