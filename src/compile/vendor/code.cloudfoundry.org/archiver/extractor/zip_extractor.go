@@ -6,8 +6,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
+
+	securejoin "github.com/cyphar/filepath-securejoin"
 )
 
 type zipExtractor struct{}
@@ -36,57 +37,43 @@ func (e *zipExtractor) Extract(src, dest string) error {
 }
 
 func extractZip(src, dest string) error {
-	path, err := exec.LookPath("unzip")
+	files, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
 
-	if err == nil {
-		err := os.MkdirAll(dest, 0755)
-		if err != nil {
-			return err
-		}
+	defer files.Close()
 
-		unzipCmd := exec.Command(path, src)
-		unzipCmd.Dir = dest
-
-		return unzipCmd.Run()
-	} else {
-		files, err := zip.OpenReader(src)
-		if err != nil {
-			return err
-		}
-
-		defer files.Close()
-
-		for _, file := range files.File {
-			err = func() error {
-				readCloser, err := file.Open()
-				if err != nil {
-					return err
-				}
-				defer readCloser.Close()
-
-				return extractZipArchiveFile(file, dest, readCloser)
-			}()
-
+	for _, file := range files.File {
+		err = func() error {
+			readCloser, err := file.Open()
 			if err != nil {
 				return err
 			}
-		}
+			defer readCloser.Close()
 
-		return nil
+			return extractZipArchiveFile(file, dest, readCloser)
+		}()
+
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func extractZipArchiveFile(file *zip.File, dest string, input io.Reader) error {
-	filePath := filepath.Join(dest, file.Name)
+	filePath, err := securejoin.SecureJoin(dest, file.Name)
 	fileInfo := file.FileInfo()
 
 	if fileInfo.IsDir() {
-		err := os.MkdirAll(filePath, fileInfo.Mode())
+		err = os.MkdirAll(filePath, fileInfo.Mode())
 		if err != nil {
 			return err
 		}
 	} else {
-		err := os.MkdirAll(filepath.Dir(filePath), 0755)
+		err = os.MkdirAll(filepath.Dir(filePath), 0755)
 		if err != nil {
 			return err
 		}
