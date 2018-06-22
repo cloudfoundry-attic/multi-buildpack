@@ -96,7 +96,6 @@ func (c CachingInfoType) Equal(other CachingInfoType) bool {
 // A transformer function can be used to do post-download
 // processing on the file before it is stored in the cache.
 func New(
-	uncachedPath string,
 	downloader *Downloader,
 	cache *FileCache,
 	transformer CacheTransformer,
@@ -105,13 +104,20 @@ func New(
 	return &cachedDownloader{
 		cache:         cache,
 		cacheLocation: filepath.Join(cache.CachedPath, "saved_cache.json"),
-		uncachedPath:  uncachedPath,
+		uncachedPath:  createTempCachedDir(cache.CachedPath),
 		downloader:    downloader,
 		transformer:   transformer,
 
 		lock:       &sync.Mutex{},
 		inProgress: map[string]chan struct{}{},
 	}
+}
+
+func createTempCachedDir(path string) string {
+	workDir := filepath.Join(path, "temp")
+	os.RemoveAll(workDir)
+	os.MkdirAll(workDir, 0755)
+	return workDir
 }
 
 func (c *cachedDownloader) SaveState(logger lager.Logger) error {
@@ -172,6 +178,11 @@ func (c *cachedDownloader) RecoverState(logger lager.Logger) error {
 
 	// free some disk space in case the maxSizeInBytes was changed
 	c.cache.makeRoom(logger, 0, "")
+
+	if err := os.Mkdir(c.uncachedPath, 0755); err != nil {
+		return err
+	}
+
 	return err
 }
 

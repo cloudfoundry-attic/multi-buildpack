@@ -24,7 +24,6 @@ var _ = Describe("Integration", func() {
 		server              *httptest.Server
 		serverPath          string
 		cachedPath          string
-		uncachedPath        string
 		cacheMaxSizeInBytes int64         = 32000
 		downloadTimeout     time.Duration = time.Second
 		checksum            cacheddownloader.ChecksumInfoType
@@ -42,9 +41,6 @@ var _ = Describe("Integration", func() {
 		cachedPath, err = ioutil.TempDir("", "cached_downloader_integration_cache")
 		Expect(err).NotTo(HaveOccurred())
 
-		uncachedPath, err = ioutil.TempDir("", "cached_downloader_integration_uncached")
-		Expect(err).NotTo(HaveOccurred())
-
 		handler := http.FileServer(http.Dir(serverPath))
 		server = httptest.NewServer(handler)
 
@@ -53,13 +49,12 @@ var _ = Describe("Integration", func() {
 
 		cache = cacheddownloader.NewCache(cachedPath, cacheMaxSizeInBytes)
 		downloader = cacheddownloader.NewDownloader(downloadTimeout, 10, nil)
-		cachedDownloader = cacheddownloader.New(uncachedPath, downloader, cache, cacheddownloader.NoopTransform)
+		cachedDownloader = cacheddownloader.New(downloader, cache, cacheddownloader.NoopTransform)
 	})
 
 	AfterEach(func() {
 		os.RemoveAll(serverPath)
 		os.RemoveAll(cachedPath)
-		os.RemoveAll(uncachedPath)
 		server.Close()
 	})
 
@@ -75,8 +70,8 @@ var _ = Describe("Integration", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		cacheContents, err := ioutil.ReadDir(cachedPath)
-		Expect(cacheContents).To(HaveLen(1))
 		Expect(err).NotTo(HaveOccurred())
+		expectCacheToHaveNEntries(cachedPath, 1)
 
 		content, err := ioutil.ReadFile(filepath.Join(cachedPath, cacheContents[0].Name()))
 		Expect(err).NotTo(HaveOccurred())
@@ -103,7 +98,7 @@ var _ = Describe("Integration", func() {
 
 		cacheContents, err := ioutil.ReadDir(cachedPath)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(cacheContents).To(HaveLen(1))
+		expectCacheToHaveNEntries(cachedPath, 1)
 
 		// ReadDir sorts by file name, so the tarfile should come before the directory
 		Expect(cacheContents[0].Mode().IsDir()).To(BeTrue())
