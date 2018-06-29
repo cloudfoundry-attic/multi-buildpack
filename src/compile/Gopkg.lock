@@ -17,7 +17,7 @@
     ".",
     "buildpackrunner"
   ]
-  revision = "1e1fa5ae3fdb39bf974fe111ce2e7373473550fc"
+  revision = "21bacb8ef839e47f9e4b2d42eee1576dd6b39287"
 
 [[projects]]
   branch = "master"
@@ -29,7 +29,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/cacheddownloader"
   packages = ["."]
-  revision = "1804c6a5709282923d8b980438c23dc49d9a45a7"
+  revision = "b557d3f40e114045e0d0c525ee29cdd001185f57"
 
 [[projects]]
   name = "code.cloudfoundry.org/lager"
@@ -111,7 +111,7 @@
     "reporters/stenographer/support/go-isatty",
     "types"
   ]
-  revision = "000d317071340972710dc1da9ae3c2c016a7a560"
+  revision = "e51bee6c2dd1df84f9cdde1e21f62f6d5a825a90"
 
 [[projects]]
   branch = "master"
@@ -159,7 +159,7 @@
     "html/atom",
     "html/charset"
   ]
-  revision = "d1d521f6884855bc0e59c3d011574bd0678f18bc"
+  revision = "4cb1c02c05b0e749b0365f61ae859a8e0cfceed9"
 
 [[projects]]
   branch = "master"

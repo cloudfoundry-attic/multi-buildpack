@@ -231,6 +231,7 @@ func (c *cachedDownloader) fetchCachedFile(logger lager.Logger, url *url.URL, ca
 
 	// nothing had to be downloaded; return the cached entry
 	if cacheIsWarm {
+		logger.Info("file-found-in-cache", lager.Data{"cache_key": cacheKey, "size": size})
 		return currentReader, 0, getErr
 	}
 
@@ -282,6 +283,7 @@ func (c *cachedDownloader) fetchCachedDirectory(logger lager.Logger, url *url.UR
 
 	// nothing had to be downloaded; return the cached entry
 	if cacheIsWarm {
+		logger.Info("directory-found-in-cache", lager.Data{"cache_key": cacheKey, "size": size})
 		return currentDirectory, 0, getErr
 	}
 
