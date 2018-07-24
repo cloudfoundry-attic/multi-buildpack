@@ -14,14 +14,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b648bfbc46ff8c58ef317fea4881b6b70b2a34588cadae9b9015d1372217a5e9"
+  digest = "1:5d2ae4610bb20c1c976d87b39327d0ecdd9b210a7d7b963752c45f2c7c71579c"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [
     ".",
     "buildpackrunner",
   ]
   pruneopts = ""
-  revision = "21bacb8ef839e47f9e4b2d42eee1576dd6b39287"
+  revision = "344eb488fcd88f35e7aa53c6b78b9976ca1f9218"
 
 [[projects]]
   branch = "master"
