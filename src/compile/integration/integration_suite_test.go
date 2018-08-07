@@ -31,7 +31,8 @@ func init() {
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Run once
 	if buildpackVersion == "" {
-		packagedBuildpack, err := cutlass.PackageUniquelyVersionedBuildpack(os.Getenv("CF_STACK"))
+		var err error
+		packagedBuildpack, err = cutlass.PackageUniquelyVersionedBuildpack(os.Getenv("CF_STACK"), ApiHasStackAssociation())
 		Expect(err).NotTo(HaveOccurred())
 
 		data, err := json.Marshal(packagedBuildpack)
@@ -64,6 +65,12 @@ var _ = SynchronizedAfterSuite(func() {
 	Expect(cutlass.RemovePackagedBuildpack(packagedBuildpack)).To(Succeed())
 	Expect(cutlass.DeleteOrphanedRoutes()).To(Succeed())
 })
+
+func ApiHasStackAssociation() bool {
+	supported, err := cutlass.ApiGreaterThan("2.113.0")
+	Expect(err).NotTo(HaveOccurred())
+	return supported
+}
 
 func TestIntegration(t *testing.T) {
 	RegisterFailHandler(Fail)
