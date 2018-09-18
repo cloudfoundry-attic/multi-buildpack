@@ -18,9 +18,6 @@ var _ = Describe("TarTransformer", func() {
 
 		sourcePath      string
 		destinationPath string
-
-		transformedSize int64
-		transformErr    error
 	)
 
 	archiveFiles := []test_helper.ArchiveFile{
@@ -48,7 +45,8 @@ var _ = Describe("TarTransformer", func() {
 	})
 
 	JustBeforeEach(func() {
-		transformedSize, transformErr = TarTransform(sourcePath, destinationPath)
+		_, err := TarTransform(sourcePath, destinationPath)
+		Expect(err).ToNot(HaveOccurred())
 	})
 
 	Context("when the file is a .zip", func() {

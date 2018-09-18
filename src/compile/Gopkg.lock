@@ -25,19 +25,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:69706f009abd714a03e16892f2632fe37cab837f72a7c3fed926de2f95277179"
+  digest = "1:23ea7327e52e14b2b0eff80a8a4b9fa522922079e5afa4b969b8ca0ad182c3a1"
   name = "code.cloudfoundry.org/bytefmt"
   packages = ["."]
   pruneopts = ""
-  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+  revision = "2aa6f33b730c79971cfc3c742f279195b0abc627"
 
 [[projects]]
   branch = "master"
-  digest = "1:2ec062ca031dbe8204082a08d55808b383815bddf8f9dc9ebb89033711833e30"
+  digest = "1:a1abeb3b2ee94443219b237faa09656667df12995b470908bee32df8b485d6d7"
   name = "code.cloudfoundry.org/cacheddownloader"
   packages = ["."]
   pruneopts = ""
-  revision = "b557d3f40e114045e0d0c525ee29cdd001185f57"
+  revision = "745315d7bec3c1083d0dd147966e5ee63bc8168a"
 
 [[projects]]
   digest = "1:f36feb7bd3cdc782f5b83e85e512a21bdd4cff9c72aee093549d4ab3a97a5473"
@@ -49,11 +49,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0cd8e1e7f947f2b2bc60937433be04f023e93fa9cf45917b8799bb660150c6c3"
+  digest = "1:3dbee55971def1e4aa600dac9e3398ddb1b20ee4ca729aa08c985692b2bd1fc8"
   name = "code.cloudfoundry.org/systemcerts"
   packages = ["."]
   pruneopts = ""
-  revision = "6123281b2e0ac9c138e35e0f15163e1f102d93c9"
+  revision = "ca00b2f806f2fa1ded784ade357bad1ea3f1fbbe"
 
 [[projects]]
   digest = "1:b856d8248663c39265a764561c1a1a149783f6cc815feb54a1f3a591b91f6eca"
@@ -73,7 +73,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:75dbbbb84b7ce0cbe2343a0b158f410fbd37b9903ad738e351751205dd632700"
+  digest = "1:971b1dbd0ee5193b8460dda81b73f0281e3dde918c17f8eb66a15d85ecc29432"
   name = "github.com/cloudfoundry/libbuildpack"
   packages = [
     ".",
@@ -81,15 +81,15 @@
     "packager",
   ]
   pruneopts = ""
-  revision = "0f28470a5391e0d3a1a3433e6bff692f849d6bee"
+  revision = "d0bce6958da43036c309bd2951410e7048fdb344"
 
 [[projects]]
-  digest = "1:8714c459446adf811c2806bc53ce42450d2688948715695cf6283f5bb8bb954c"
+  digest = "1:a9854984bc40330dde2125537b7f46d0a8d7860b3750de2e7cd0a6f904506212"
   name = "github.com/cyphar/filepath-securejoin"
   packages = ["."]
   pruneopts = ""
-  revision = "06bda8370f45268db985f7af15732444d94ed51c"
-  version = "v0.2.1"
+  revision = "a261ee33d7a517f054effbf451841abaafe3e0fd"
+  version = "v0.2.2"
 
 [[projects]]
   digest = "1:7ce300e943482aff885b3318c1c6a609827f43e3ba26a073380d5ba6143a0c48"
@@ -142,7 +142,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:37befae3de7edea3e997245d097f851a6dc494bb9ade5570dd2e5ba9c29a9445"
+  digest = "1:3ecd0a37c4a90c12a97e31c398cdbc173824351aa891898ee178120bfe71c478"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -159,7 +159,7 @@
     "types",
   ]
   pruneopts = ""
-  revision = "38ca19236de6fbe62537be60136602cf095daa35"
+  revision = "7615b9433f86a8bdf29709bf288bc4fd0636a369"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
@@ -187,7 +187,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7dd0f1b8c8bd70dbae4d3ed3fbfaec224e2b27bcc0fc65882d6f1dba5b1f6e22"
+  digest = "1:fbdbb6cf8db3278412c9425ad78b26bb8eb788181f26a3ffb3e4f216b314f86a"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -196,15 +196,18 @@
     "html/charset",
   ]
   pruneopts = ""
-  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
+  revision = "26e67e76b6c3f6ce91f7c52def5af501b4e0f3a2"
 
 [[projects]]
   branch = "master"
-  digest = "1:7a5f7a1206de6b90f67cb465e489eac3298e95afa7262813b542df4fab38952f"
+  digest = "1:6f8f4a4fffbef9ef137261e37fd4da98981b978efeb79837434be05831bb87fc"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = ""
-  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
+  revision = "ee1b12c67af419cf5a9be3bdbeea7fc1c5f32f11"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
