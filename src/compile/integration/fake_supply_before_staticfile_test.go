@@ -28,8 +28,8 @@ var _ = Describe("running supply buildpacks before the staticfile buildpack", fu
 			PushAppAndConfirm(app)
 
 			Expect(app.Stdout.String()).To(ContainSubstring("Multi Buildpack version"))
-			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING DOTNET"))
-			Expect(app.Stdout.String()).To(ContainSubstring("dotnet: 1.0.1"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Supplying Dotnet Core"))
+			Expect(app.Stdout.String()).To(MatchRegexp(`dotnet: \d+\.\d+\.\d+`))
 
 			Expect(app.GetBody("/")).To(ContainSubstring("This is an example app for Cloud Foundry that is only static HTML/JS/CSS assets."))
 		})

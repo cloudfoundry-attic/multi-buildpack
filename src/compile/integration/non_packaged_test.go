@@ -51,9 +51,9 @@ var _ = Describe("running supply buildpacks before the ruby buildpack", func() {
 			Eventually(func() ([]string, error) { return app.InstanceStates() }, 10*time.Second).Should(Equal([]string{"RUNNING"}))
 
 			Expect(app.Stdout.String()).To(ContainSubstring("Running go build compile"))
-			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING DOTNET"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Supplying Dotnet Core"))
 
-			Expect(app.GetBody("/")).To(ContainSubstring("dotnet: 1.0.1"))
+			Expect(app.GetBody("/")).To(MatchRegexp(`dotnet: \d+\.\d+\.\d+`))
 		})
 	})
 })

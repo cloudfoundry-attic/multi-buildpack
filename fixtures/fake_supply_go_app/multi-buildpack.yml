@@ -1,4 +1,4 @@
 buildpacks:
-  - https://buildpacks.cloudfoundry.org/fixtures/new_supply_dotnet.zip
-  - https://github.com/cloudfoundry/go-buildpack#develop
+  - https://github.com/cloudfoundry/dotnet-core-buildpack#master
+  - https://github.com/cloudfoundry/go-buildpack#master
 

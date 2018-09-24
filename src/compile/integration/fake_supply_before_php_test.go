@@ -27,9 +27,9 @@ var _ = Describe("running supply buildpacks before the php buildpack", func() {
 		It("finds the supplied dependency in the runtime container", func() {
 			PushAppAndConfirm(app)
 
-			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING DOTNET"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Supplying Dotnet Core"))
 
-			Expect(app.GetBody("/")).To(ContainSubstring("dotnet: 1.0.1"))
+			Expect(app.GetBody("/")).To(MatchRegexp(`dotnet: \d+\.\d+\.\d+`))
 		})
 	})
 })

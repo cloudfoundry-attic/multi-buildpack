@@ -28,8 +28,8 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 
 		It("finds the supplied dependency in the runtime container", func() {
 			PushAppAndConfirm(app)
-			Expect(app.Stdout.String()).To(ContainSubstring("SUPPLYING DOTNET"))
-			Expect(app.GetBody("/")).To(ContainSubstring("dotnet: 1.0.1"))
+			Expect(app.Stdout.String()).To(ContainSubstring("Supplying Dotnet Core"))
+			Expect(app.GetBody("/")).To(MatchRegexp(`dotnet: \d+\.\d+\.\d+`))
 		})
 	})
 
@@ -48,7 +48,7 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 			libbuildpack.NewYAML().Write(filepath.Join(tmpDir, "multi-buildpack.yml"), map[string][]string{
 				"buildpacks": []string{
 					"https://buildpacks.cloudfoundry.org/fixtures/supply-cache-new.zip",
-					"https://github.com/cloudfoundry/python-buildpack#develop",
+					"https://github.com/cloudfoundry/python-buildpack#master",
 				},
 			})
 			PushAppAndConfirm(app)
@@ -58,7 +58,7 @@ var _ = Describe("running supply buildpacks before the python buildpack", func()
 				"buildpacks": []string{
 					"https://github.com/cloudfoundry/binary-buildpack",
 					"https://buildpacks.cloudfoundry.org/fixtures/supply-cache-new.zip",
-					"https://github.com/cloudfoundry/python-buildpack#develop",
+					"https://github.com/cloudfoundry/python-buildpack#master",
 				},
 			})
 			PushAppAndConfirm(app)
