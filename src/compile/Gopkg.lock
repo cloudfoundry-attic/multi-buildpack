@@ -14,14 +14,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5bb1f4181991b43440679e6d470bd98c18c3931215aff06d4bc28198e17875c3"
+  digest = "1:84fac3b7367fbc25eb351752daa5301d9f1eaaac2c26e1fbc313d31720632015"
   name = "code.cloudfoundry.org/buildpackapplifecycle"
   packages = [
     ".",
     "buildpackrunner",
   ]
   pruneopts = ""
-  revision = "344eb488fcd88f35e7aa53c6b78b9976ca1f9218"
+  revision = "4c09f8f2cb256a9c5a11baedce874b4865057004"
 
 [[projects]]
   branch = "master"
@@ -46,14 +46,6 @@
   pruneopts = ""
   revision = "b60e04e119450552243196105bae0d42179ee0ca"
   version = "v1.1.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3dbee55971def1e4aa600dac9e3398ddb1b20ee4ca729aa08c985692b2bd1fc8"
-  name = "code.cloudfoundry.org/systemcerts"
-  packages = ["."]
-  pruneopts = ""
-  revision = "ca00b2f806f2fa1ded784ade357bad1ea3f1fbbe"
 
 [[projects]]
   digest = "1:b856d8248663c39265a764561c1a1a149783f6cc815feb54a1f3a591b91f6eca"
@@ -108,11 +100,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b264547c40314ec7619d2cf264e2621953843be7242c140efe1e3119f93877f4"
+  digest = "1:df265b7f54410945dad5cf5979d91461b9fa7ff9b397ab58d2d577002a8a0e24"
   name = "github.com/google/subcommands"
   packages = ["."]
   pruneopts = ""
-  revision = "5bae204cdfb2d92dcc333d56014bae6a2f6c58b1"
+  revision = "46f0354f63152e8801bb460d26f5b6c4c878efbb"
 
 [[projects]]
   digest = "1:1eece6e2aa8a8f94e0461483229f0c4b0555c17e76e0e7e6b8597c2093d269f8"
@@ -187,7 +179,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:547dcb6aebfb7fb17947660ebb034470c13f4d63d893def190a2f7ba3d09bc38"
+  digest = "1:6543c75ddc1efc0041202dd49378ee2e5711b7cc82c2845c0437eef6276cc984"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -196,16 +188,13 @@
     "html/charset",
   ]
   pruneopts = ""
-  revision = "49bb7cea24b1df9410e1712aa6433dae904ff66a"
+  revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
 
 [[projects]]
   branch = "master"
   digest = "1:2ed0bf267e44950120acd95570227e28184573ffb099bd85b529ee148e004ddb"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows",
-  ]
+  packages = ["unix"]
   pruneopts = ""
   revision = "fa43e7bc11baaae89f3f902b2b4d832b68234844"
 
