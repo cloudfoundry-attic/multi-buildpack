@@ -40,12 +40,12 @@
   revision = "745315d7bec3c1083d0dd147966e5ee63bc8168a"
 
 [[projects]]
-  digest = "1:f36feb7bd3cdc782f5b83e85e512a21bdd4cff9c72aee093549d4ab3a97a5473"
+  digest = "1:673cab9bb26a0011fbc34255ec4a6695ecb31cf6338860263959c415e3aa3dd1"
   name = "code.cloudfoundry.org/lager"
   packages = ["."]
   pruneopts = ""
-  revision = "b60e04e119450552243196105bae0d42179ee0ca"
-  version = "v1.1.0"
+  revision = "b152b7147a2a0154109a5194fcc7f4a933283abb"
+  version = "v2.0.0"
 
 [[projects]]
   digest = "1:b856d8248663c39265a764561c1a1a149783f6cc815feb54a1f3a591b91f6eca"
@@ -65,7 +65,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a335865660d76e4ceffb1037e87d4791b3b756b3df135946a15290d476df0b8b"
+  digest = "1:247bddbfc543e03625816480644ae8f879a347bbb44d06f41a506a4bc6fb0e45"
   name = "github.com/cloudfoundry/libbuildpack"
   packages = [
     ".",
@@ -73,7 +73,7 @@
     "packager",
   ]
   pruneopts = ""
-  revision = "b3a93a61afe673eea69e3165b5e987e52e3cfafc"
+  revision = "fe1bbde44a2153ae92e42c74bbce4423bf14decd"
 
 [[projects]]
   digest = "1:a9854984bc40330dde2125537b7f46d0a8d7860b3750de2e7cd0a6f904506212"
@@ -192,11 +192,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2ed0bf267e44950120acd95570227e28184573ffb099bd85b529ee148e004ddb"
+  digest = "1:03a1b1f2bfb0a6b2291c4161032429b1e8a1f23cc68530ad64358f8b493ead5f"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "fa43e7bc11baaae89f3f902b2b4d832b68234844"
+  revision = "8a28ead16f52c8aaeffbf79239b251dfdf6c4f96"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
